@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from typing import Optional, List
 import re
 
-from app.services.ai_provider import ai_analyze_resume
+from app.services.ai_provider import ai_analyze_resume, ai_generate_cover_letter
 
 router = APIRouter()
 
@@ -251,3 +251,14 @@ async def generate_resume_questions(request: dict):
         })
     
     return {"questions": questions[:count]}
+
+
+@router.post("/generate-cover-letter")
+async def generate_cover_letter(request: ResumeAnalysisRequest):
+    """Generate a highly tailored cover letter based on resume and JD."""
+    cover_letter = await ai_generate_cover_letter(
+        resume_text=request.resume_text,
+        job_description=request.job_description,
+        target_role=request.target_role,
+    )
+    return {"cover_letter": cover_letter}

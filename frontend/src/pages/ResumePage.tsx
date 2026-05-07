@@ -10,6 +10,8 @@ export default function ResumePage() {
   const [targetRole, setTargetRole] = useState('Software Engineer');
   const [analysis, setAnalysis] = useState<any>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [coverLetter, setCoverLetter] = useState('');
+  const [isGeneratingCL, setIsGeneratingCL] = useState(false);
   const [tab, setTab] = useState<'paste' | 'upload'>('paste');
   const [fileName, setFileName] = useState('');
 
@@ -34,6 +36,19 @@ export default function ResumePage() {
       setAnalysis(getMockAnalysis());
     }
     setIsAnalyzing(false);
+  };
+
+  const handleGenerateCoverLetter = async () => {
+    if (!resumeText.trim()) return;
+    setIsGeneratingCL(true);
+    setCoverLetter('');
+    try {
+      const res = await resumeAPI.generateCoverLetter({ resumeText, jobDescription, targetRole }) as any;
+      setCoverLetter(res.coverLetter);
+    } catch {
+      setCoverLetter('Error generating cover letter. Please try again.');
+    }
+    setIsGeneratingCL(false);
   };
 
   const getScoreColor = (score: number) => score >= 70 ? 'var(--success)' : score >= 50 ? 'var(--warning)' : 'var(--danger)';
@@ -89,13 +104,23 @@ export default function ResumePage() {
               <textarea className="form-input" placeholder="Paste the job description here for a detailed match analysis..." value={jobDescription} onChange={(e) => setJobDescription(e.target.value)} style={{ minHeight: 120, fontSize: 13 }} />
             </div>
 
-            <button className="btn btn-primary" style={{ width: '100%', padding: 14 }} onClick={handleAnalyze} disabled={!resumeText.trim() || isAnalyzing}>
-              {isAnalyzing ? (
-                <><span className="spinner" style={{ width: 18, height: 18, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'white', borderRadius: '50%', display: 'inline-block' }} /> Analyzing Resume...</>
-              ) : (
-                <><Zap size={16} /> Analyze Resume with AI</>
-              )}
-            </button>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button className="btn btn-primary" style={{ flex: 1, padding: 14 }} onClick={handleAnalyze} disabled={!resumeText.trim() || isAnalyzing}>
+                {isAnalyzing ? (
+                  <><span className="spinner" style={{ width: 18, height: 18, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'white', borderRadius: '50%', display: 'inline-block' }} /> Analyzing...</>
+                ) : (
+                  <><Zap size={16} /> Analyze Resume</>
+                )}
+              </button>
+              
+              <button className="btn btn-secondary" style={{ flex: 1, padding: 14, background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.3)', color: 'var(--accent-primary)' }} onClick={handleGenerateCoverLetter} disabled={!resumeText.trim() || isGeneratingCL}>
+                {isGeneratingCL ? (
+                  <><span className="spinner" style={{ width: 18, height: 18, border: '2px solid rgba(99,102,241,0.3)', borderTopColor: 'var(--accent-primary)', borderRadius: '50%', display: 'inline-block' }} /> Writing...</>
+                ) : (
+                  <><BookOpen size={16} /> Generate Cover Letter</>
+                )}
+              </button>
+            </div>
           </div>
 
           {/* Right: Results */}
@@ -109,14 +134,34 @@ export default function ResumePage() {
             )}
 
             {isAnalyzing && (
-              <div className="card" style={{ padding: 40, textAlign: 'center' }}>
+              <div className="card" style={{ padding: 40, textAlign: 'center', marginBottom: 20 }}>
                 <div className="spinner" style={{ width: 48, height: 48, border: '3px solid rgba(99,102,241,0.2)', borderTopColor: 'var(--accent-primary)', borderRadius: '50%', margin: '0 auto 20px' }} />
                 <h3 style={{ fontWeight: 700, marginBottom: 8 }}>Analyzing Your Resume</h3>
                 <p style={{ color: 'var(--text-secondary)', fontSize: 14 }}>Running ATS scoring, keyword extraction, and JD matching...</p>
               </div>
             )}
 
-            {analysis && (
+            {isGeneratingCL && (
+              <div className="card" style={{ padding: 40, textAlign: 'center', marginBottom: 20, background: 'linear-gradient(to right, rgba(99,102,241,0.05), rgba(139,92,246,0.05))' }}>
+                <div className="spinner" style={{ width: 48, height: 48, border: '3px solid rgba(139,92,246,0.2)', borderTopColor: '#8b5cf6', borderRadius: '50%', margin: '0 auto 20px' }} />
+                <h3 style={{ fontWeight: 700, marginBottom: 8 }}>Writing Your Cover Letter</h3>
+                <p style={{ color: 'var(--text-secondary)', fontSize: 14 }}>Tailoring your experience to the target role perfectly...</p>
+              </div>
+            )}
+
+            {coverLetter && !isGeneratingCL && (
+              <div className="card" style={{ padding: 24, marginBottom: 20, animation: 'fadeIn 0.4s ease', border: '1px solid var(--accent-primary)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                  <h3 style={{ fontWeight: 700, fontSize: 16, display: 'flex', alignItems: 'center', gap: 8 }}><BookOpen size={18} color="var(--accent-primary)" /> AI Cover Letter</h3>
+                  <button className="btn btn-secondary btn-sm" onClick={() => navigator.clipboard.writeText(coverLetter)}>Copy Text</button>
+                </div>
+                <div style={{ background: 'var(--bg-default)', padding: 20, borderRadius: 10, whiteSpace: 'pre-wrap', fontSize: 14, lineHeight: 1.7, color: 'var(--text-primary)', border: '1px solid var(--border)' }}>
+                  {coverLetter}
+                </div>
+              </div>
+            )}
+
+            {analysis && !isAnalyzing && (
               <div style={{ animation: 'fadeIn 0.4s ease' }}>
                 {/* Score Overview */}
                 <div className="card" style={{ padding: 24, marginBottom: 20 }}>

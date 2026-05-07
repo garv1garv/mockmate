@@ -29,6 +29,7 @@ export const authAPI = {
   demoLogin: () => API.post('/auth/demo'),
   getMe: () => API.get('/auth/me'),
   updateProfile: (data: any) => API.put('/auth/profile', data),
+  updateAISettings: (data: any) => API.post('/auth/ai-settings', data),
 };
 
 export const interviewAPI = {
@@ -42,6 +43,7 @@ export const interviewAPI = {
 
 export const resumeAPI = {
   analyze: (data: any) => API.post('/resume/analyze', data),
+  generateCoverLetter: (data: any) => API.post('/resume/cover-letter', data),
   generateQuestions: (data: any) => API.post('/resume/questions', data),
 };
 

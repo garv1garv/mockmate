@@ -374,3 +374,31 @@ async def get_provider_status() -> dict:
         status["error"] = f"Provider '{provider}' did not respond to test ping"
 
     return status
+
+
+async def ai_generate_cover_letter(
+    resume_text: str,
+    job_description: str,
+    target_role: str,
+) -> str:
+    """Generate a highly tailored cover letter."""
+    jd_section = f"\nJOB DESCRIPTION:\n{job_description[:1000]}" if job_description else ""
+    prompt = f"""
+Write a professional, compelling, and concise cover letter for the following role.
+TARGET ROLE: {target_role}{jd_section}
+
+CANDIDATE RESUME (first 1500 chars):
+{resume_text[:1500]}
+
+The cover letter should:
+1. Have a professional greeting and opening.
+2. Highlight 2-3 specific achievements from the resume that perfectly match the target role/JD.
+3. Be confident but not arrogant.
+4. Have a strong closing statement.
+5. DO NOT use placeholders like [Your Name] if the name is in the resume, try to extract it. If not found, use a generic sign-off.
+Respond directly with the text of the cover letter. Do not include markdown formatting or json.
+"""
+    raw = await complete(prompt, SYSTEM_INTERVIEW_EXPERT)
+    if not raw:
+        return "Dear Hiring Manager,\n\nI am writing to express my strong interest in this position. Enclosed is my resume for your review.\n\nSincerely,\nCandidate"
+    return raw.strip()

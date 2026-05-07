@@ -16,6 +16,13 @@ export default function SettingsPage() {
     targetRole: '',
   });
 
+  const [aiForm, setAiForm] = useState({
+    aiProvider: 'ollama',
+    ollamaHost: 'http://127.0.0.1:11434',
+    ollamaModel: 'llama3',
+  });
+  const [isSavingAI, setIsSavingAI] = useState(false);
+
   useEffect(() => {
     if (user) {
       setForm({
@@ -42,6 +49,19 @@ export default function SettingsPage() {
       toast.error(err.message || 'Failed to update profile');
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleSaveAI = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSavingAI(true);
+    try {
+      await authAPI.updateAISettings(aiForm);
+      toast.success('AI Settings updated successfully! Please restart the backend for changes to take effect.');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to update AI settings');
+    } finally {
+      setIsSavingAI(false);
     }
   };
 
@@ -112,6 +132,52 @@ export default function SettingsPage() {
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
               <button type="submit" className="btn btn-primary" disabled={isSaving}>
                 {isSaving ? 'Saving...' : <><Save size={16} /> Save Changes</>}
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div className="card" style={{ padding: 32, marginBottom: 24 }}>
+          <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 24, borderBottom: '1px solid var(--border)', paddingBottom: 16 }}>Application Settings</h2>
+          
+          <form onSubmit={handleSaveAI}>
+            <div className="form-group" style={{ marginBottom: 20 }}>
+              <label className="form-label">AI Provider</label>
+              <select 
+                className="form-input" 
+                value={aiForm.aiProvider} 
+                onChange={(e) => setAiForm({...aiForm, aiProvider: e.target.value})}
+              >
+                <option value="ollama">Local AI (Ollama)</option>
+                <option value="gemini">Google Gemini</option>
+              </select>
+            </div>
+
+            <div className="form-group" style={{ marginBottom: 20 }}>
+              <label className="form-label">Ollama Base URL</label>
+              <input 
+                className="form-input" 
+                type="text" 
+                value={aiForm.ollamaHost} 
+                onChange={(e) => setAiForm({...aiForm, ollamaHost: e.target.value})} 
+                placeholder="http://127.0.0.1:11434"
+              />
+            </div>
+
+            <div className="form-group" style={{ marginBottom: 32 }}>
+              <label className="form-label">Ollama Model Name</label>
+              <input 
+                className="form-input" 
+                type="text" 
+                value={aiForm.ollamaModel} 
+                onChange={(e) => setAiForm({...aiForm, ollamaModel: e.target.value})} 
+                placeholder="llama3"
+              />
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+              <button type="submit" className="btn btn-primary" style={{ background: '#8b5cf6', borderColor: '#8b5cf6' }} disabled={isSavingAI}>
+                {isSavingAI ? 'Saving...' : 'Save Ollama Settings'}
               </button>
             </div>
           </form>

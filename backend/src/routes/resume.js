@@ -33,6 +33,16 @@ router.post('/analyze', protect, async (req, res) => {
   }
 });
 
+// POST /api/resume/cover-letter
+router.post('/cover-letter', protect, async (req, res) => {
+  try {
+    const mlResponse = await axios.post(`${ML_URL}/generate-cover-letter`, req.body, { timeout: 30000 });
+    res.json({ success: true, coverLetter: mlResponse.data.cover_letter });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 // GET /api/resume/questions - Generate resume-specific interview questions
 router.post('/questions', protect, async (req, res) => {
   try {

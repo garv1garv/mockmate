@@ -16,6 +16,7 @@ class GenerateQuestionRequest(BaseModel):
     user_profile: Optional[Dict] = {}
     previous_questions: Optional[List[str]] = []
     company: Optional[str] = None
+    job_description: Optional[str] = None
 
 
 # ── Static question bank (fallback when AI is unavailable) ───────────────────
@@ -145,6 +146,7 @@ async def generate_question(request: GenerateQuestionRequest):
     difficulty = request.difficulty.lower()
     category   = request.category.lower()
     company    = request.company
+    job_desc   = request.job_description
     previous   = list(request.previous_questions or [])
 
     time_limits = {"easy": 120, "medium": 180, "hard": 300}
@@ -155,6 +157,7 @@ async def generate_question(request: GenerateQuestionRequest):
         difficulty=difficulty,
         category=category,
         company=company,
+        job_description=job_desc,
         previous_questions=previous,
     )
 

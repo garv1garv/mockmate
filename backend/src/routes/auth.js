@@ -1,4 +1,6 @@
 const jwt = require('jsonwebtoken');
+const fs = require('fs');
+const path = require('path');
 const User = require('../models/User');
 
 const generateToken = (id) => {
@@ -98,4 +100,39 @@ const updateProfile = async (req, res) => {
   }
 };
 
-module.exports = { register, login, demoLogin, getMe, updateProfile };
+// POST /api/auth/ai-settings
+const updateAiSettings = async (req, res) => {
+  try {
+    const { aiProvider, ollamaHost, ollamaModel } = req.body;
+    
+    // Path to ml_service/.env
+    const envPath = path.join(__dirname, '../../../ml_service/.env');
+    let envContent = '';
+    
+    if (fs.existsSync(envPath)) {
+      envContent = fs.readFileSync(envPath, 'utf8');
+    }
+    
+    // Helper to replace or append env vars
+    const updateEnv = (key, value) => {
+      const regex = new RegExp(`^${key}=.*$`, 'm');
+      if (regex.test(envContent)) {
+        envContent = envContent.replace(regex, `${key}=${value}`);
+      } else {
+        envContent += `\n${key}=${value}`;
+      }
+    };
+
+    if (aiProvider) updateEnv('AI_PROVIDER', aiProvider);
+    if (ollamaHost) updateEnv('OLLAMA_HOST', ollamaHost);
+    if (ollamaModel) updateEnv('OLLAMA_MODEL', ollamaModel);
+
+    fs.writeFileSync(envPath, envContent.trim() + '\n');
+
+    res.json({ success: true, message: 'AI settings updated successfully' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+module.exports = { register, login, demoLogin, getMe, updateProfile, updateAiSettings };

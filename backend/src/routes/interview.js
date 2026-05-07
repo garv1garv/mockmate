@@ -11,7 +11,7 @@ const ML_URL = process.env.ML_SERVICE_URL || 'http://localhost:8000';
 // POST /api/interview/start
 router.post('/start', protect, async (req, res) => {
   try {
-    const { type, difficulty, targetRole, company, persona } = req.body;
+    const { type, difficulty, targetRole, company, persona, jobDescription } = req.body;
     const sessionId = uuidv4();
 
     const session = await InterviewSession.create({
@@ -21,6 +21,7 @@ router.post('/start', protect, async (req, res) => {
       difficulty: difficulty || 'medium',
       targetRole: targetRole || req.user.profile?.targetRole || 'Software Engineer',
       company: company || null,
+      jobDescription: jobDescription || null,
       interviewerPersona: persona || 'neutral',
     });
 
@@ -42,10 +43,13 @@ router.get('/question', protect, async (req, res) => {
     // Call ML service for adaptive question generation
     let questionData;
     try {
+      const session = await InterviewSession.findOne({ sessionId });
       const mlResponse = await axios.post(`${ML_URL}/generate-question`, {
         type: type || 'technical',
         difficulty: difficulty || 'medium',
         category: category || 'general',
+        company: session?.company || null,
+        job_description: session?.jobDescription || null,
         user_profile: {
           skills: req.user.profile?.skills || [],
           experience: req.user.profile?.experience || 'fresher',

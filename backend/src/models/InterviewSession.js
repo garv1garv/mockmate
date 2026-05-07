@@ -11,6 +11,7 @@ const interviewSessionSchema = new mongoose.Schema({
   difficulty: { type: String, enum: ['easy', 'medium', 'hard'], default: 'medium' },
   targetRole: { type: String, default: 'Software Engineer' },
   company: { type: String, default: null },
+  jobDescription: { type: String, default: null },
   interviewerPersona: {
     type: String,
     enum: ['friendly', 'challenging', 'neutral', 'skeptical'],
