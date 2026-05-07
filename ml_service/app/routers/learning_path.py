@@ -1,0 +1,138 @@
+from fastapi import APIRouter
+from pydantic import BaseModel
+from typing import Optional, List, Dict
+import random
+
+from app.services.ai_provider import ai_generate_learning_path
+
+router = APIRouter()
+
+
+class LearningPathRequest(BaseModel):
+    target_role: str
+    current_skills: Optional[List[str]] = []
+    experience_level: Optional[str] = "fresher"
+    weak_topics: Optional[List[str]] = []
+    available_hours_per_week: Optional[int] = 10
+
+
+ROLE_REQUIREMENTS = {
+    "software engineer": {
+        "core": ["Data Structures", "Algorithms", "System Design", "OOP", "Databases"],
+        "frontend": ["HTML/CSS", "JavaScript", "React", "TypeScript", "REST APIs"],
+        "backend": ["Node.js/Python", "Databases", "APIs", "Authentication", "Caching"],
+        "devops": ["Linux", "Docker", "CI/CD", "Cloud (AWS/GCP)"],
+        "soft": ["Communication", "Problem Solving", "Teamwork", "Git Workflow"],
+    },
+    "data scientist": {
+        "core": ["Statistics", "Machine Learning", "Python", "SQL", "Data Visualization"],
+        "ml": ["scikit-learn", "TensorFlow/PyTorch", "Feature Engineering", "Model Evaluation"],
+        "tools": ["Jupyter", "Pandas", "NumPy", "Matplotlib", "Apache Spark"],
+        "soft": ["Business Communication", "Research Skills", "Experimentation"],
+    },
+    "product manager": {
+        "core": ["Product Strategy", "User Research", "Data Analysis", "Roadmapping"],
+        "technical": ["Basic SQL", "API Understanding", "Analytics Tools", "A/B Testing"],
+        "soft": ["Stakeholder Management", "Communication", "Prioritization", "Leadership"],
+    },
+}
+
+
+@router.post("/generate-learning-path")
+async def generate_learning_path(request: LearningPathRequest):
+    """Generate a personalised learning path — rule-based structure + AI coaching."""
+
+    role_key     = request.target_role.lower()
+    requirements = ROLE_REQUIREMENTS.get(role_key, ROLE_REQUIREMENTS["software engineer"])
+
+    all_required   = [topic for topics in requirements.values() for topic in topics]
+    skill_gap      = [t for t in all_required if t.lower() not in [s.lower() for s in request.current_skills]]
+    priority_topics = request.weak_topics + [t for t in skill_gap if t not in request.weak_topics]
+
+    topics_count    = len(skill_gap)
+    hours_per_topic = 8 if request.experience_level == "fresher" else 5
+    total_hours     = topics_count * hours_per_topic
+    weeks_needed    = max(4, round(total_hours / max(request.available_hours_per_week, 1)))
+
+    daily_schedule = []
+    days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    for i, day in enumerate(days):
+        if i < 5:
+            daily_schedule.append({
+                "day":        day,
+                "focus":      priority_topics[i % len(priority_topics)] if priority_topics else "General Review",
+                "hours":      min(3, request.available_hours_per_week // 5),
+                "activities": ["Study concepts", "Practice problems", "Code implementation"],
+            })
+        else:
+            daily_schedule.append({
+                "day":        day,
+                "focus":      "Mock Interviews & Projects",
+                "hours":      max(2, request.available_hours_per_week // 7),
+                "activities": ["Full mock interview", "Build mini project", "Review weak areas"],
+            })
+
+    resources = {
+        "Data Structures": [
+            {"title": "LeetCode 75",       "url": "https://leetcode.com", "type": "practice"},
+            {"title": "CLRS Algorithms",   "url": "#",                  "type": "book"},
+        ],
+        "System Design": [
+            {"title": "System Design Primer",                "url": "https://github.com/donnemartin/system-design-primer", "type": "article"},
+            {"title": "Designing Data-Intensive Applications", "url": "#", "type": "book"},
+        ],
+        "default": [
+            {"title": "FreeCodeCamp",    "url": "https://freecodecamp.org",   "type": "course"},
+            {"title": "The Odin Project", "url": "https://theodinproject.com", "type": "course"},
+        ],
+    }
+
+    phase_size = max(1, len(priority_topics) // 3)
+    phases = [
+        {"phase": 1, "name": "Foundation",            "duration_weeks": max(2, weeks_needed // 4),  "topics": priority_topics[:phase_size],              "goal": "Build strong fundamentals in core concepts"},
+        {"phase": 2, "name": "Intermediate",           "duration_weeks": max(3, weeks_needed // 3),  "topics": priority_topics[phase_size:phase_size*2],  "goal": "Apply concepts to real problems and projects"},
+        {"phase": 3, "name": "Advanced & Interview Ready", "duration_weeks": max(2, weeks_needed - weeks_needed//4 - weeks_needed//3), "topics": priority_topics[phase_size*2:], "goal": "Master advanced topics and conduct mock interviews"},
+    ]
+
+    base_path = {
+        "skill_gap":       skill_gap,
+        "estimated_weeks": weeks_needed,
+    }
+
+    # ── AI personalisation (Ollama / Gemini) ──────────────────────────────
+    ai_result = await ai_generate_learning_path(
+        target_role=request.target_role,
+        current_skills=list(request.current_skills or []),
+        experience_level=request.experience_level or "fresher",
+        weak_topics=list(request.weak_topics or []),
+        hours_per_week=request.available_hours_per_week or 10,
+        base_path=base_path,
+    )
+
+    readiness = max(10, min(90, (len(request.current_skills) / max(len(all_required), 1)) * 100))
+
+    return {
+        "target_role":       request.target_role,
+        "current_level":     request.experience_level,
+        "skill_gap":         skill_gap,
+        "priority_topics":   priority_topics[:10],
+        "estimated_weeks":   weeks_needed,
+        "total_study_hours": total_hours,
+        "phases":            phases,
+        "daily_schedule":    daily_schedule,
+        "resources":         resources,
+        "readiness_estimate": readiness,
+        "milestones": [
+            {"week": weeks_needed // 4,      "goal": "Complete foundation modules"},
+            {"week": weeks_needed // 2,      "goal": "Solve 50 LeetCode problems"},
+            {"week": weeks_needed * 3 // 4,  "goal": "Complete 5 mock interviews"},
+            {"week": weeks_needed,           "goal": "Interview ready!"},
+        ],
+        **({
+            "ai_roadmap_note":  ai_result.get("ai_roadmap_note"),
+            "ai_resources":     ai_result.get("ai_resources", []),
+            "ai_weekly_tip":    ai_result.get("ai_weekly_tip"),
+            "ai_priority_order": ai_result.get("priority_order", []),
+            "ai_powered":       True,
+        } if ai_result else {"ai_powered": False}),
+    }
