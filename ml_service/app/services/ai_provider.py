@@ -387,41 +387,42 @@ async def ai_generate_learning_path(
     skills_str = ", ".join(current_skills[:15]) if current_skills else "None listed"
     gaps_str = ", ".join(base_path.get("skill_gap", [])[:10]) or "None"
     prompt = f"""
-You are a world-class technical mentor. Create a high-fidelity, personalised study roadmap.
+You are a Senior Staff Engineer and Elite Technical Mentor. Create a rigorous, high-fidelity, and DEEPLY technical study roadmap. 
+CRITICAL: Avoid generic advice like "learn data structures" or "practice coding". Be hyper-specific.
 
 TARGET ROLE: {target_role}
 EXPERIENCE LEVEL: {experience_level}
 CURRENT SKILLS: {skills_str}
-IDENTIFIED GAPS: {gaps_str}
-WEAK TOPICS: {", ".join(weak_topics) if weak_topics else "None"}
-STUDY TIME: {hours_per_week} hours/week over {base_path.get('estimated_weeks', '8')} weeks
+IDENTIFIED SKILLS GAP (MUST FOCUS ON THESE): {gaps_str}
+USER-REPORTED WEAK TOPICS: {", ".join(weak_topics) if weak_topics else "None"}
+STUDY ALLOCATION: {hours_per_week} hours/week over {base_path.get('estimated_weeks', '8')} weeks
 
 Respond with ONLY valid JSON:
 {{
-  "ai_roadmap_note": "<A 3-sentence expert strategic overview. Avoid generic advice. Mention specific technologies or architectural patterns the candidate needs to master for this specific role.>",
+  "ai_roadmap_note": "<A 3-sentence staff-level strategic overview. Identify the specific architectural paradigm or high-impact technical shift the candidate needs to make (e.g., moving from MVC to Event-Driven Microservices). NO generic encouragement.>",
   "ai_resources": [
-    {{"topic": "<topic name>", "resource": "<specific premium resource name>", "url": "<url>", "why": "<why this specific resource fits their current gap>"}},
-    {{"topic": "<topic name>", "resource": "<specific premium resource name>", "url": "<url>", "why": "<why this specific resource fits their current gap>"}},
-    {{"topic": "<topic name>", "resource": "<specific premium resource name>", "url": "<url>", "why": "<why this specific resource fits their current gap>"}}
+    {{"topic": "<Topic Name>", "resource": "<Specific High-Quality Course/Doc/Repo>", "url": "<url>", "why": "<Detailed technical justification why this specific resource fixes their identified gap at their current level>"}},
+    {{"topic": "<Topic Name>", "resource": "<Specific High-Quality Course/Doc/Repo>", "url": "<url>", "why": "<Detailed technical justification why this specific resource fixes their identified gap at their current level>"}},
+    {{"topic": "<Topic Name>", "resource": "<Specific High-Quality Course/Doc/Repo>", "url": "<url>", "why": "<Detailed technical justification why this specific resource fixes their identified gap at their current level>"}}
   ],
-  "ai_weekly_tip": "<one non-obvious, highly effective study or interview strategy tip specific to the {target_role} role>",
-  "priority_order": ["<highest impact skill 1>", "<skill 2>", "<skill 3>"],
+  "ai_weekly_tip": "<A 'pro-tip' that only a senior engineer would know about this specific role (e.g., specific concurrency patterns in Go, or how to handle hydration mismatches in Next.js).>",
+  "priority_order": ["<Highest impact technical skill 1>", "<Skill 2>", "<Skill 3>"],
   "custom_phases": [
-    {{"phase": 1, "name": "<Creative Phase Name>", "topics": ["<topic1>", "<topic2>"], "goal": "<concrete outcome>"}},
-    {{"phase": 2, "name": "<Creative Phase Name>", "topics": ["<topic3>", "<topic4>"], "goal": "<concrete outcome>"}},
-    {{"phase": 3, "name": "<Creative Phase Name>", "topics": ["<topic5>", "<topic6>"], "goal": "<concrete outcome>"}}
+    {{"phase": 1, "name": "<Staff-Level Phase Name>", "topics": ["<Specific Topic 1>", "<Specific Topic 2>"], "goal": "<A concrete technical milestone, e.g., 'Implement a distributed rate-limiter'>"}},
+    {{"phase": 2, "name": "<Staff-Level Phase Name>", "topics": ["<Specific Topic 3>", "<Specific Topic 4>"], "goal": "<A concrete technical milestone>"}},
+    {{"phase": 3, "name": "<Staff-Level Phase Name>", "topics": ["<Specific Topic 5>", "<Specific Topic 6>"], "goal": "<A concrete technical milestone>"}}
   ],
   "custom_schedule": [
-    {{"day": "Monday", "focus": "<topic>", "activities": ["<act1>", "<act2>"]}},
-    {{"day": "Tuesday", "focus": "<topic>", "activities": ["<act1>", "<act2>"]}},
-    {{"day": "Wednesday", "focus": "<topic>", "activities": ["<act1>", "<act2>"]}},
-    {{"day": "Thursday", "focus": "<topic>", "activities": ["<act1>", "<act2>"]}},
-    {{"day": "Friday", "focus": "<topic>", "activities": ["<act1>", "<act2>"]}},
-    {{"day": "Saturday", "focus": "Projects & Labs", "activities": ["<act>"]}},
-    {{"day": "Sunday", "focus": "Review & Mock", "activities": ["<act>"]}}
+    {{"day": "Monday", "focus": "<Niche Topic>", "activities": ["<Advanced coding task 1>", "<Advanced coding task 2>"]}},
+    {{"day": "Tuesday", "focus": "<Niche Topic>", "activities": ["<Advanced coding task 1>", "<Advanced coding task 2>"]}},
+    {{"day": "Wednesday", "focus": "<Niche Topic>", "activities": ["<Advanced coding task 1>", "<Advanced coding task 2>"]}},
+    {{"day": "Thursday", "focus": "<Niche Topic>", "activities": ["<Advanced coding task 1>", "<Advanced coding task 2>"]}},
+    {{"day": "Friday", "focus": "<Niche Topic>", "activities": ["<Advanced coding task 1>", "<Advanced coding task 2>"]}},
+    {{"day": "Saturday", "focus": "System Design & Deep Work", "activities": ["<Architecture whiteboarding>", "<Open source contribution>"]}},
+    {{"day": "Sunday", "focus": "Interview Simulation", "activities": ["<Hard-difficulty mock session>", "<Review analytics>"]}}
   ],
   "project_ideas": [
-    {{"name": "<project name>", "description": "<2-sentence description of a unique project that demonstrates the missing skills>", "difficulty": "medium|hard"}}
+    {{"name": "<Unique Project Name>", "description": "<A complex, multi-layered project description that forces the use of missing skills. NO simple CRUD apps.>", "difficulty": "hard"}}
   ],
   "weekly_breakdown": [
     {{"week": 1, "focus": "<specific topic>", "goal": "<concrete outcome>"}},

@@ -177,6 +177,9 @@ export default function SettingsPage() {
                     onChange={(e) => setAiForm({...aiForm, ollamaHost: e.target.value})} 
                     placeholder="http://127.0.0.1:11434"
                   />
+                  <p style={{ fontSize: 11, color: 'var(--warning)', marginTop: 6, lineHeight: 1.4 }}>
+                    ⚠️ <b>Note:</b> Since MockMate is deployed on Render, it cannot reach your local machine's <code>127.0.0.1</code> directly. Use <b>ngrok</b> to tunnel your local Ollama port or switch to <b>Gemini</b> for the best experience.
+                  </p>
                 </div>
 
                 <div className="form-group" style={{ marginBottom: 32 }}>
