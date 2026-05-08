@@ -85,13 +85,13 @@ export default function LandingPage() {
       <canvas ref={canvasRef} style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }} />
 
       {/* Navbar */}
-      <nav style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, padding: '16px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(5,5,16,0.8)', borderBottom: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(20px)' }}>
+      <nav style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, padding: '16px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(255, 255, 255, 0.8)', borderBottom: '1px solid rgba(0, 0, 0, 0.06)', backdropFilter: 'blur(20px)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ width: 36, height: 36, borderRadius: 10, background: 'var(--gradient-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: 36, height: 36, borderRadius: 10, background: 'var(--gradient-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)' }}>
             <Brain size={20} color="white" />
           </div>
           <span style={{ fontSize: 20, fontWeight: 800, background: 'var(--gradient-primary)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>MockMate</span>
-          <span style={{ fontSize: 11, background: 'rgba(99,102,241,0.2)', color: 'var(--accent-primary)', padding: '2px 8px', borderRadius: 20, fontWeight: 600, border: '1px solid rgba(99,102,241,0.3)' }}>v2.0</span>
+          <span style={{ fontSize: 11, background: 'rgba(59, 130, 246, 0.1)', color: 'var(--accent-primary)', padding: '2px 8px', borderRadius: 20, fontWeight: 700, border: '1px solid rgba(59, 130, 246, 0.2)' }}>v2.0</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <Link to="/login" className="btn btn-secondary btn-sm">Sign In</Link>
@@ -170,7 +170,7 @@ export default function LandingPage() {
       </section>
 
       {/* How it works */}
-      <section style={{ padding: '80px 32px', background: 'rgba(255,255,255,0.02)', position: 'relative', zIndex: 1 }}>
+      <section style={{ padding: '80px 32px', background: '#FFFFFF', position: 'relative', zIndex: 1, borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
         <div className="container" style={{ maxWidth: 800, margin: '0 auto' }}>
           <h2 style={{ textAlign: 'center', fontSize: 36, fontWeight: 800, marginBottom: 60 }}>
             How <span className="gradient-text">MockMate</span> Works
@@ -220,7 +220,7 @@ export default function LandingPage() {
 
       {/* CTA */}
       <section style={{ padding: '100px 32px', textAlign: 'center', position: 'relative', zIndex: 1 }}>
-        <div style={{ maxWidth: 600, margin: '0 auto', padding: '60px 40px', background: 'linear-gradient(135deg, rgba(99,102,241,0.12), rgba(139,92,246,0.08))', border: '1px solid rgba(99,102,241,0.3)', borderRadius: 32, backdropFilter: 'blur(20px)' }}>
+        <div style={{ maxWidth: 600, margin: '0 auto', padding: '60px 40px', background: '#FFFFFF', border: '1px solid var(--border)', borderRadius: 32, boxShadow: 'var(--shadow-card)' }}>
           <h2 style={{ fontSize: 40, fontWeight: 800, marginBottom: 16 }}>Ready to Land <span className="gradient-text">Your Dream Job?</span></h2>
           <p style={{ color: 'var(--text-secondary)', marginBottom: 32, fontSize: 16 }}>Join 50,000+ engineers who used MockMate to get hired at top companies.</p>
           <Link to="/register" className="btn btn-primary btn-lg" style={{ marginBottom: 16 }}>
