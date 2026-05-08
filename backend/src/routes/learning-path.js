@@ -1,0 +1,38 @@
+const express = require('express');
+const router = express.Router();
+const axios = require('axios');
+const { protect } = require('../middleware/authMiddleware');
+
+const ML_URL = process.env.ML_SERVICE_URL || 'http://localhost:8000';
+
+// POST /api/learning-path/generate
+router.post('/generate', protect, async (req, res) => {
+  try {
+    const { targetRole, currentSkills, experienceLevel, availableHours } = req.body;
+
+    const mlResponse = await axios.post(`${ML_URL}/generate-learning-path`, {
+      target_role: targetRole,
+      current_skills: currentSkills,
+      experience_level: experienceLevel,
+      available_hours_per_week: availableHours,
+      ai_settings: {
+        provider: req.user.aiSettings?.provider || 'ollama',
+        ollamaHost: req.user.aiSettings?.ollamaHost || 'http://127.0.0.1:11434',
+        ollamaModel: req.user.aiSettings?.ollamaModel || 'llama3',
+        geminiModel: req.user.aiSettings?.geminiModel || 'gemini-1.5-flash',
+        geminiApiKey: req.user.aiSettings?.geminiApiKey || '',
+      },
+    }, { timeout: 30000 });
+
+    res.json(mlResponse.data);
+  } catch (error) {
+    console.error('Learning Path Error:', error.message);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to generate learning path',
+      error: error.message 
+    });
+  }
+});
+
+module.exports = router;

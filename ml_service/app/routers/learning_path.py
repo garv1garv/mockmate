@@ -14,6 +14,7 @@ class LearningPathRequest(BaseModel):
     experience_level: Optional[str] = "fresher"
     weak_topics: Optional[List[str]] = []
     available_hours_per_week: Optional[int] = 10
+    ai_settings: Optional[Dict] = None
 
 
 ROLE_REQUIREMENTS = {
@@ -181,6 +182,7 @@ async def generate_learning_path(request: LearningPathRequest):
         weak_topics=list(request.weak_topics or []),
         hours_per_week=request.available_hours_per_week or 10,
         base_path=base_path,
+        ai_settings=request.ai_settings,
     )
 
     readiness = max(10, min(90, (len(request.current_skills) / max(len(all_required), 1)) * 100))

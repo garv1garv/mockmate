@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import { BookOpen, Map, Clock, Target, TrendingUp, CheckCircle, Calendar, Zap } from 'lucide-react';
 import axios from 'axios';
 import Sidebar from '../components/Sidebar';
+import { learningPathAPI } from '../lib/api';
 
 export default function LearningPathPage() {
   const { user } = useSelector((s: any) => s.auth);
@@ -18,14 +19,15 @@ export default function LearningPathPage() {
   const generate = async () => {
     setIsLoading(true);
     try {
-      const res = await axios.post('http://localhost:8000/generate-learning-path', {
-        target_role: config.targetRole,
-        current_skills: config.currentSkills.split(',').map((s) => s.trim()).filter(Boolean),
-        experience_level: config.experienceLevel,
-        available_hours_per_week: config.availableHours,
+      const data = await learningPathAPI.generate({
+        targetRole: config.targetRole,
+        currentSkills: config.currentSkills.split(',').map((s) => s.trim()).filter(Boolean),
+        experienceLevel: config.experienceLevel,
+        availableHours: config.availableHours,
       });
-      setPath(res.data);
-    } catch {
+      setPath(data);
+    } catch (err) {
+      console.error('Failed to generate path:', err);
       setPath(getMockPath(config.targetRole));
     }
     setIsLoading(false);

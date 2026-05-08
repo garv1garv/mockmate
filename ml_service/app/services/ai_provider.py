@@ -370,11 +370,18 @@ async def ai_generate_learning_path(
     weak_topics: list[str],
     hours_per_week: int,
     base_path: dict,
+    ai_settings: Optional[dict] = None,
 ) -> Optional[dict]:
     """
     Use AI to personalise the learning path roadmap.
     Returns dict with: ai_roadmap_note, ai_resources, ai_weekly_tip.
     """
+    settings = ai_settings or {}
+    provider = settings.get("provider", AI_PROVIDER)
+    host = settings.get("ollamaHost", OLLAMA_HOST)
+    model = settings.get("ollamaModel", OLLAMA_MODEL) if provider == "ollama" else settings.get("geminiModel", GEMINI_MODEL)
+    api_key = settings.get("geminiApiKey")
+
     skills_str = ", ".join(current_skills[:15]) if current_skills else "None listed"
     gaps_str = ", ".join(base_path.get("skill_gap", [])[:10]) or "None"
     prompt = f"""
@@ -420,7 +427,7 @@ Respond with ONLY valid JSON:
   ]
 }}
 """
-    raw = await complete(prompt, SYSTEM_INTERVIEW_EXPERT)
+    raw = await complete(prompt, SYSTEM_INTERVIEW_EXPERT, provider_override=provider, host_override=host, model_override=model, gemini_api_key_override=api_key)
     if not raw:
         return None
     result = _extract_json(raw)

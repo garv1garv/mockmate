@@ -59,4 +59,8 @@ export const analyticsAPI = {
   getLeaderboard: () => API.get('/analytics/leaderboard'),
 };
 
+export const learningPathAPI = {
+  generate: (data: any) => API.post('/learning-path/generate', data),
+};
+
 export default API;

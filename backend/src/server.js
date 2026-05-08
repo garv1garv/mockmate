@@ -13,6 +13,7 @@ const authRouter = require('./routes/authRouter');
 const interviewRouter = require('./routes/interview');
 const resumeRouter = require('./routes/resume');
 const analyticsRouter = require('./routes/analytics');
+const learningPathRouter = require('./routes/learning-path');
 
 const app = express();
 const server = http.createServer(app);
@@ -52,6 +53,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/interview', interviewRouter);
 app.use('/api/resume', resumeRouter);
 app.use('/api/analytics', analyticsRouter);
+app.use('/api/learning-path', learningPathRouter);
 
 // Health check
 app.get('/health', (req, res) => {
