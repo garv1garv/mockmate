@@ -215,6 +215,8 @@ async def ai_evaluate_answer(
     model = settings.get("ollamaModel", OLLAMA_MODEL) if provider == "ollama" else settings.get("geminiModel", GEMINI_MODEL)
     api_key = settings.get("geminiApiKey")
 
+    logger.info("AI Provider: %s | Host: %s | Model: %s", provider, host, model)
+
     kw_list = ", ".join(keywords[:10]) if keywords else "N/A"
     prompt = f"""
 You are evaluating a mock interview answer. Provide structured JSON feedback.
@@ -264,6 +266,8 @@ async def ai_generate_question(
     host = settings.get("ollamaHost", OLLAMA_HOST)
     model = settings.get("ollamaModel", OLLAMA_MODEL) if provider == "ollama" else settings.get("geminiModel", GEMINI_MODEL)
     api_key = settings.get("geminiApiKey")
+
+    logger.info("Generating question | Provider: %s | Host: %s | Model: %s", provider, host, model)
 
     # Add a random seed/twist to prevent AI repetitive patterns
     twists = [
