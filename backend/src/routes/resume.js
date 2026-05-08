@@ -50,7 +50,13 @@ router.post('/analyze', protect, async (req, res) => {
         resume_text: resumeText,
         job_description: jobDescription || '',
         target_role: targetRole || 'Software Engineer',
-        ai_settings: req.user.aiSettings || { provider: 'ollama' },
+        ai_settings: {
+          provider: req.user.aiSettings?.provider || 'ollama',
+          ollamaHost: req.user.aiSettings?.ollamaHost || 'http://127.0.0.1:11434',
+          ollamaModel: req.user.aiSettings?.ollamaModel || 'llama3',
+          geminiModel: req.user.aiSettings?.geminiModel || 'gemini-1.5-flash',
+          geminiApiKey: req.user.aiSettings?.geminiApiKey || '',
+        },
       }, { timeout: 20000 });
       analysis = mlResponse.data;
     } catch (mlError) {
@@ -68,7 +74,13 @@ router.post('/cover-letter', protect, async (req, res) => {
   try {
     const mlResponse = await axios.post(`${ML_URL}/generate-cover-letter`, {
       ...req.body,
-      ai_settings: req.user.aiSettings || { provider: 'ollama' }
+      ai_settings: {
+        provider: req.user.aiSettings?.provider || 'ollama',
+        ollamaHost: req.user.aiSettings?.ollamaHost || 'http://127.0.0.1:11434',
+        ollamaModel: req.user.aiSettings?.ollamaModel || 'llama3',
+        geminiModel: req.user.aiSettings?.geminiModel || 'gemini-1.5-flash',
+        geminiApiKey: req.user.aiSettings?.geminiApiKey || '',
+      },
     }, { timeout: 30000 });
     res.json({ success: true, coverLetter: mlResponse.data.cover_letter });
   } catch (error) {
@@ -87,7 +99,13 @@ router.post('/questions', protect, async (req, res) => {
         resume_text: resumeText,
         target_role: targetRole,
         count,
-        ai_settings: req.user.aiSettings || { provider: 'ollama' },
+        ai_settings: {
+          provider: req.user.aiSettings?.provider || 'ollama',
+          ollamaHost: req.user.aiSettings?.ollamaHost || 'http://127.0.0.1:11434',
+          ollamaModel: req.user.aiSettings?.ollamaModel || 'llama3',
+          geminiModel: req.user.aiSettings?.geminiModel || 'gemini-1.5-flash',
+          geminiApiKey: req.user.aiSettings?.geminiApiKey || '',
+        },
       }, { timeout: 15000 });
       questions = mlResponse.data.questions;
     } catch {

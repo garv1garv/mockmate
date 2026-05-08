@@ -56,7 +56,13 @@ router.post('/question', protect, async (req, res) => {
           experience: req.user.profile?.experience || 'fresher',
           weak_topics: req.user.knowledgeGraph?.weakTopics || [],
         },
-        ai_settings: req.user.aiSettings || { provider: 'ollama' },
+        ai_settings: {
+          provider: req.user.aiSettings?.provider || 'ollama',
+          ollamaHost: req.user.aiSettings?.ollamaHost || 'http://127.0.0.1:11434',
+          ollamaModel: req.user.aiSettings?.ollamaModel || 'llama3',
+          geminiModel: req.user.aiSettings?.geminiModel || 'gemini-1.5-flash',
+          geminiApiKey: req.user.aiSettings?.geminiApiKey || '',
+        },
       }, { timeout: 10000 });
       questionData = mlResponse.data;
     } catch (mlError) {
@@ -80,8 +86,15 @@ router.post('/evaluate', protect, async (req, res) => {
       const mlResponse = await axios.post(`${ML_URL}/evaluate-answer`, {
         question: questionText,
         user_answer: userAnswer,
-        expected_answer: expectedAnswer,
+        expected_answer: expectedAnswer || '',
         answer_type: questionType || 'text',
+        ai_settings: {
+          provider: req.user.aiSettings?.provider || 'ollama',
+          ollamaHost: req.user.aiSettings?.ollamaHost || 'http://127.0.0.1:11434',
+          ollamaModel: req.user.aiSettings?.ollamaModel || 'llama3',
+          geminiModel: req.user.aiSettings?.geminiModel || 'gemini-1.5-flash',
+          geminiApiKey: req.user.aiSettings?.geminiApiKey || '',
+        },
       }, { timeout: 15000 });
       evaluation = mlResponse.data;
     } catch (mlError) {

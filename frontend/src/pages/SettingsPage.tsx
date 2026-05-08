@@ -20,6 +20,7 @@ export default function SettingsPage() {
     aiProvider: 'ollama',
     ollamaHost: 'http://127.0.0.1:11434',
     ollamaModel: 'llama3',
+    geminiApiKey: '',
   });
   const [isSavingAI, setIsSavingAI] = useState(false);
 
@@ -33,6 +34,7 @@ export default function SettingsPage() {
         aiProvider: user.aiSettings?.provider || 'ollama',
         ollamaHost: user.aiSettings?.ollamaHost || 'http://127.0.0.1:11434',
         ollamaModel: user.aiSettings?.ollamaModel || 'llama3',
+        geminiApiKey: user.aiSettings?.geminiApiKey || '',
       });
     }
   }, [user]);

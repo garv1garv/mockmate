@@ -106,14 +106,16 @@ async def _call_ollama(
 async def _call_gemini(
     prompt: str, 
     system: str = "", 
-    model_override: Optional[str] = None
+    model_override: Optional[str] = None,
+    api_key_override: Optional[str] = None
 ) -> Optional[str]:
     """Call Google Gemini REST API (generateContent)."""
     model = model_override or GEMINI_MODEL
+    api_key = api_key_override or GEMINI_API_KEY
     full_prompt = f"{system}\n\n{prompt}" if system else prompt
     url = (
         f"https://generativelanguage.googleapis.com/v1beta/models/"
-        f"{model}:generateContent?key={GEMINI_API_KEY}"
+        f"{model}:generateContent?key={api_key}"
     )
     payload = {
         "contents": [{"parts": [{"text": full_prompt}]}],
@@ -144,7 +146,8 @@ async def complete(
     system: str = "", 
     provider_override: Optional[str] = None,
     host_override: Optional[str] = None,
-    model_override: Optional[str] = None
+    model_override: Optional[str] = None,
+    gemini_api_key_override: Optional[str] = None
 ) -> Optional[str]:
     """
     Send a prompt to the configured AI provider.
@@ -154,7 +157,7 @@ async def complete(
     if provider == "none":
         return None
     if provider == "gemini":
-        return await _call_gemini(prompt, system, model_override)
+        return await _call_gemini(prompt, system, model_override, gemini_api_key_override)
     return await _call_ollama(prompt, system, host_override, model_override)
 
 
@@ -210,6 +213,7 @@ async def ai_evaluate_answer(
     provider = settings.get("provider", AI_PROVIDER)
     host = settings.get("ollamaHost", OLLAMA_HOST)
     model = settings.get("ollamaModel", OLLAMA_MODEL) if provider == "ollama" else settings.get("geminiModel", GEMINI_MODEL)
+    api_key = settings.get("geminiApiKey")
 
     kw_list = ", ".join(keywords[:10]) if keywords else "N/A"
     prompt = f"""
@@ -233,7 +237,7 @@ Respond with ONLY valid JSON (no markdown, no extra text):
   "adjusted_overall": <integer 0-100, your assessment of overall quality>
 }}
 """
-    raw = await complete(prompt, SYSTEM_INTERVIEW_EXPERT, provider_override=provider, host_override=host, model_override=model)
+    raw = await complete(prompt, SYSTEM_INTERVIEW_EXPERT, provider_override=provider, host_override=host, model_override=model, gemini_api_key_override=api_key)
     if not raw:
         return None
     result = _extract_json(raw)
@@ -259,6 +263,7 @@ async def ai_generate_question(
     provider = settings.get("provider", AI_PROVIDER)
     host = settings.get("ollamaHost", OLLAMA_HOST)
     model = settings.get("ollamaModel", OLLAMA_MODEL) if provider == "ollama" else settings.get("geminiModel", GEMINI_MODEL)
+    api_key = settings.get("geminiApiKey")
 
     # Add a random seed/twist to prevent AI repetitive patterns
     twists = [
@@ -294,7 +299,7 @@ Respond with ONLY valid JSON:
   "follow_up_questions": ["<follow up 1>", "<follow up 2>"]
 }}
 """
-    raw = await complete(prompt, SYSTEM_INTERVIEW_EXPERT, provider_override=provider, host_override=host, model_override=model)
+    raw = await complete(prompt, SYSTEM_INTERVIEW_EXPERT, provider_override=provider, host_override=host, model_override=model, gemini_api_key_override=api_key)
     if not raw:
         return None
     result = _extract_json(raw)
@@ -318,6 +323,7 @@ async def ai_analyze_resume(
     provider = settings.get("provider", AI_PROVIDER)
     host = settings.get("ollamaHost", OLLAMA_HOST)
     model = settings.get("ollamaModel", OLLAMA_MODEL) if provider == "ollama" else settings.get("geminiModel", GEMINI_MODEL)
+    api_key = settings.get("geminiApiKey")
 
     jd_section = f"\nJOB DESCRIPTION:\n{job_description[:1000]}" if job_description else ""
     prompt = f"""
@@ -344,7 +350,7 @@ Respond with ONLY valid JSON:
   "missing_sections": ["<any key section missing from resume>"]
 }}
 """
-    raw = await complete(prompt, SYSTEM_INTERVIEW_EXPERT, provider_override=provider, host_override=host, model_override=model)
+    raw = await complete(prompt, SYSTEM_INTERVIEW_EXPERT, provider_override=provider, host_override=host, model_override=model, gemini_api_key_override=api_key)
     if not raw:
         return None
     result = _extract_json(raw)
@@ -461,6 +467,7 @@ async def ai_generate_cover_letter(
     provider = settings.get("provider", AI_PROVIDER)
     host = settings.get("ollamaHost", OLLAMA_HOST)
     model = settings.get("ollamaModel", OLLAMA_MODEL) if provider == "ollama" else settings.get("geminiModel", GEMINI_MODEL)
+    api_key = settings.get("geminiApiKey")
 
     jd_section = f"\nJOB DESCRIPTION:\n{job_description[:1000]}" if job_description else ""
     prompt = f"""
@@ -478,7 +485,7 @@ The cover letter should:
 5. DO NOT use placeholders like [Your Name] if the name is in the resume, try to extract it. If not found, use a generic sign-off.
 Respond directly with the text of the cover letter. Do not include markdown formatting or json.
 """
-    raw = await complete(prompt, SYSTEM_INTERVIEW_EXPERT, provider_override=provider, host_override=host, model_override=model)
+    raw = await complete(prompt, SYSTEM_INTERVIEW_EXPERT, provider_override=provider, host_override=host, model_override=model, gemini_api_key_override=api_key)
     if not raw:
         return "Dear Hiring Manager,\n\nI am writing to express my strong interest in this position. Enclosed is my resume for your review.\n\nSincerely,\nCandidate"
     return raw.strip()

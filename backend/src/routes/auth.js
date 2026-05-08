@@ -103,16 +103,20 @@ const updateProfile = async (req, res) => {
 // POST /api/auth/ai-settings
 const updateAiSettings = async (req, res) => {
   try {
-    const { aiProvider, ollamaHost, ollamaModel, geminiModel } = req.body;
+    const { aiProvider, provider, ollamaHost, ollamaModel, geminiModel, geminiApiKey } = req.body;
+    const finalProvider = aiProvider || provider;
     
     const user = await User.findById(req.user._id);
-    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
 
     user.aiSettings = {
-      provider: aiProvider || user.aiSettings?.provider || 'ollama',
+      provider: finalProvider || user.aiSettings?.provider || 'ollama',
       ollamaHost: ollamaHost || user.aiSettings?.ollamaHost || 'http://127.0.0.1:11434',
       ollamaModel: ollamaModel || user.aiSettings?.ollamaModel || 'llama3',
       geminiModel: geminiModel || user.aiSettings?.geminiModel || 'gemini-1.5-flash',
+      geminiApiKey: geminiApiKey !== undefined ? geminiApiKey : user.aiSettings?.geminiApiKey,
     };
 
     await user.save();

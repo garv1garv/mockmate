@@ -29,6 +29,7 @@ const userSchema = new mongoose.Schema({
     ollamaHost: { type: String, default: 'http://127.0.0.1:11434' },
     ollamaModel: { type: String, default: 'llama3' },
     geminiModel: { type: String, default: 'gemini-1.5-flash' },
+    geminiApiKey: { type: String, default: '' },
   },
   knowledgeGraph: {
     strongTopics: [String],
