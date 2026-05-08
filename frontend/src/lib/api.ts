@@ -42,6 +42,13 @@ export const interviewAPI = {
 };
 
 export const resumeAPI = {
+  upload: (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return API.post('/resume/upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+  },
   analyze: (data: any) => API.post('/resume/analyze', data),
   generateCoverLetter: (data: any) => API.post('/resume/cover-letter', data),
   generateQuestions: (data: any) => API.post('/resume/questions', data),

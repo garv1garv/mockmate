@@ -1,29 +1,8 @@
 import React, { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { FileText, Upload, Target, CheckCircle, AlertCircle, TrendingUp, Star, Zap, BookOpen } from 'lucide-react';
+import { FileText, Upload, Target, CheckCircle, AlertCircle, Star, Zap, BookOpen, Loader2 } from 'lucide-react';
 import { resumeAPI } from '../lib/api';
 import Sidebar from '../components/Sidebar';
-import * as pdfjsLib from 'pdfjs-dist';
-
-// Set PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
-
-async function extractTextFromPdf(data: ArrayBuffer): Promise<string> {
-  try {
-    const pdf = await pdfjsLib.getDocument({ data }).promise;
-    let fullText = '';
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const page = await pdf.getPage(i);
-      const textContent = await page.getTextContent();
-      const pageText = textContent.items.map((item: any) => item.str).join(' ');
-      fullText += pageText + '\n';
-    }
-    return fullText;
-  } catch (error) {
-    console.error('Error parsing PDF:', error);
-    return 'Error extracting text from PDF. Please try pasting the text manually.';
-  }
-}
 
 export default function ResumePage() {
   const [resumeText, setResumeText] = useState('');
@@ -35,26 +14,23 @@ export default function ResumePage() {
   const [isGeneratingCL, setIsGeneratingCL] = useState(false);
   const [tab, setTab] = useState<'paste' | 'upload'>('paste');
   const [fileName, setFileName] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
 
-  const onDrop = useCallback((files: File[]) => {
+  const onDrop = useCallback(async (files: File[]) => {
     const file = files[0];
     if (!file) return;
     setFileName(file.name);
+    setIsUploading(true);
 
-    if (file.type === 'application/pdf') {
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        const arrayBuffer = e.target?.result as ArrayBuffer;
-        if (arrayBuffer) {
-          const text = await extractTextFromPdf(arrayBuffer);
-          setResumeText(text);
-        }
-      };
-      reader.readAsArrayBuffer(file);
-    } else {
-      const reader = new FileReader();
-      reader.onload = (e) => setResumeText(e.target?.result as string || '');
-      reader.readAsText(file);
+    try {
+      const res = await resumeAPI.upload(file) as any;
+      if (res.text) {
+        setResumeText(res.text);
+      }
+    } catch (err) {
+      console.error('Upload error:', err);
+    } finally {
+      setIsUploading(false);
     }
   }, []);
 
@@ -111,11 +87,19 @@ export default function ResumePage() {
                 <textarea className="form-input" placeholder="Paste your resume text here..." value={resumeText} onChange={(e) => setResumeText(e.target.value)} style={{ minHeight: 280, fontSize: 13 }} />
               </div>
             ) : (
-              <div {...getRootProps()} style={{ border: `2px dashed ${isDragActive ? 'var(--accent-primary)' : 'var(--border)'}`, borderRadius: 12, padding: 40, textAlign: 'center', cursor: 'pointer', background: isDragActive ? 'rgba(99,102,241,0.05)' : 'var(--bg-card)', transition: 'all 0.2s', marginBottom: 20 }}>
-                <input {...getInputProps()} />
-                <Upload size={32} color="var(--text-muted)" style={{ margin: '0 auto 12px' }} />
-                <p style={{ fontWeight: 600, marginBottom: 4 }}>{fileName || (isDragActive ? 'Drop your resume here' : 'Drag & drop or click to upload')}</p>
-                <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>Supports .txt and .pdf files</p>
+              <div style={{ marginBottom: 20 }}>
+                <div {...getRootProps()} style={{ border: `2px dashed ${isDragActive ? 'var(--accent-primary)' : 'var(--border)'}`, borderRadius: 12, padding: 40, textAlign: 'center', cursor: 'pointer', background: isDragActive ? 'rgba(99,102,241,0.05)' : 'var(--bg-card)', transition: 'all 0.2s', marginBottom: 12 }}>
+                  <input {...getInputProps()} />
+                  {isUploading ? <Loader2 size={32} className="spinner" style={{ margin: '0 auto 12px' }} /> : <Upload size={32} color="var(--text-muted)" style={{ margin: '0 auto 12px' }} />}
+                  <p style={{ fontWeight: 600, marginBottom: 4 }}>{fileName || (isDragActive ? 'Drop your resume here' : 'Drag & drop or click to upload')}</p>
+                  <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>Supports .txt and .pdf files</p>
+                </div>
+                {resumeText && (
+                  <div style={{ padding: 12, background: 'rgba(255,255,255,0.03)', borderRadius: 8, border: '1px solid var(--border)', fontSize: 11, color: 'var(--text-muted)', maxHeight: 100, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    <div style={{ fontWeight: 600, marginBottom: 4, color: 'var(--text-secondary)' }}>Extracted Text Preview:</div>
+                    {resumeText.substring(0, 300)}...
+                  </div>
+                )}
               </div>
             )}
 

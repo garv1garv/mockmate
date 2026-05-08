@@ -4,8 +4,37 @@ const axios = require('axios');
 const { protect } = require('../middleware/auth');
 const InterviewSession = require('../models/InterviewSession');
 const User = require('../models/User');
+const multer = require('multer');
+const FormData = require('form-data');
+
+const upload = multer({ limits: { fileSize: 10 * 1024 * 1024 } }); // 10MB limit
 
 const ML_URL = process.env.ML_SERVICE_URL || 'http://localhost:8000';
+
+// POST /api/resume/upload
+router.post('/upload', protect, upload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'No file uploaded' });
+    }
+
+    const formData = new FormData();
+    formData.append('file', req.file.buffer, {
+      filename: req.file.originalname,
+      contentType: req.file.mimetype,
+    });
+
+    const mlResponse = await axios.post(`${ML_URL}/upload-resume`, formData, {
+      headers: formData.getHeaders(),
+      timeout: 20000,
+    });
+
+    res.json({ success: true, text: mlResponse.data.text });
+  } catch (error) {
+    console.error('Proxy Upload Error:', error.message);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
 
 // POST /api/resume/analyze
 router.post('/analyze', protect, async (req, res) => {

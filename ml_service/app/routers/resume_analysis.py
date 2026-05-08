@@ -1,7 +1,8 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, File, UploadFile
 from pydantic import BaseModel
 from typing import Optional, List
 import re
+import fitz # PyMuPDF
 
 from app.services.ai_provider import ai_analyze_resume, ai_generate_cover_letter
 
@@ -145,9 +146,34 @@ def generate_suggestions(resume_text: str, skills: List[str]) -> List[dict]:
     return suggestions
 
 
+@router.post("/upload-resume")
+async def upload_resume(file: UploadFile = File(...)):
+    """Extract text from uploaded PDF or text resume."""
+    filename = file.filename.lower()
+    content = await file.read()
+    
+    try:
+        if filename.endswith(".pdf"):
+            # Use PyMuPDF to extract text from PDF
+            doc = fitz.open(stream=content, filetype="pdf")
+            text = ""
+            for page in doc:
+                text += page.get_text()
+            return {"text": text.strip()}
+        else:
+            # Fallback for text files
+            return {"text": content.decode("utf-8", errors="ignore").strip()}
+    except Exception as e:
+        print(f"Error parsing file: {e}")
+        return {"text": "", "error": str(e)}
+
+
 @router.post("/analyze-resume")
 async def analyze_resume(request: ResumeAnalysisRequest):
     """Comprehensive resume analysis with ATS scoring, rule-based suggestions, and AI insights."""
+    print(f"DEBUG: Received resume analysis request. Text length: {len(request.resume_text)}")
+    if len(request.resume_text) < 10:
+        print(f"DEBUG: Resume text too short: '{request.resume_text}'")
 
     skills     = extract_skills(request.resume_text)
     ats_score  = calculate_ats_score(request.resume_text)
