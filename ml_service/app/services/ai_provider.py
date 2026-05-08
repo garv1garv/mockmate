@@ -82,7 +82,7 @@ async def _call_ollama(
         "stream": False,
         "options": {
             "temperature": 0.7,
-            "num_predict": 1024,
+            "num_predict": 4096,
         },
     }
     if system:
@@ -122,7 +122,7 @@ async def _call_gemini(
         "contents": [{"parts": [{"text": full_prompt}]}],
         "generationConfig": {
             "temperature": 0.7,
-            "maxOutputTokens": 1024,
+            "maxOutputTokens": 4096,
         },
     }
     try:
@@ -402,59 +402,58 @@ async def ai_generate_learning_path(
     selected_angle = random.choice(angles)
 
     prompt = f"""
-You are a Senior Staff Engineer and Elite Technical Mentor. Create a rigorous, high-fidelity, and DEEPLY technical study roadmap.
-CRITICAL: Do NOT use generic boilerplate. Every single technical detail must be GROUNDED in the user's specific context.
+You are a Distinguished Staff Engineer at a Tier-1 Tech Company (Google/Meta/Netflix). Your task is to create a HYPER-PERSONALIZED, hyper-technical study roadmap that is indistinguishable from one created by a human mentor with 20 years of experience.
 
-CURRENT STRATEGIC ANGLE (Apply this mindset): {selected_angle}
+CRITICAL DIRECTIVES:
+- NO boilerplate. NO generic "Learn the basics".
+- If the user is a "Senior", assume they know the basics and dive into Distributed Systems, Performance Tuning, and Architecture.
+- If the user is a "Fresher", focus on building a deep mental model, not just syntax.
+- Every resource must be high-signal (e.g., "Designing Data-Intensive Applications", specific whitepapers, or niche GitHub repos).
 
-USER CONTEXT:
-- TARGET ROLE: {target_role}
-- EXPERIENCE LEVEL: {experience_level}
+CURRENT STRATEGIC ANGLE: {selected_angle}
+
+USER PROFILE:
+- ROLE: {target_role}
+- LEVEL: {experience_level}
 - CURRENT SKILLS: {skills_str}
-- WEAK TOPICS: {", ".join(weak_topics) if weak_topics else "None"}
-- SPECIFIC FOCUS AREAS: {", ".join(focus_areas) if focus_areas else "General Mastery"}
-- LEARNING STYLE: {learning_style}
+- WEAKNESSES: {", ".join(weak_topics) if weak_topics else "None reported"}
+- FOCUS AREAS: {", ".join(focus_areas) if focus_areas else "General Mastery"}
 - PROJECT PREFERENCE: {project_preference}
-- TIME COMMITMENT: {hours_per_week} hours/week
+- LEARNING STYLE: {learning_style}
+- TIME: {hours_per_week} hrs/week
 
-INSTRUCTIONS:
-1. ANALYSIS: First, identify the *actual* technical gap between a {experience_level} {target_role} and the user's current skills ({skills_str}).
-2. STRATEGY: Provide a STAFF-LEVEL strategic overview (ai_roadmap_note). 
-3. ROADMAP: Generate a week-by-week breakdown. Resources MUST be specific (specific docs, specific chapters, specific repos).
-4. PROJECTS: Suggest 3 complex project ideas that force the user to apply their *missing* skills.
-5. VALIDATION: Include 3 hard interviewer questions (interviewer_perspective).
-6. METRICS: You MUST calculate 'skill_gap' (list of missing technical topics), 'readiness_estimate' (0-100), and 'estimated_weeks' based on the gap.
-
-Respond with ONLY valid JSON:
+YOUR OUTPUT MUST BE A JSON OBJECT WITH THESE KEYS:
 {{
-  "ai_roadmap_note": "<A 3-sentence technical strategy. No generic encouragement.>",
-  "skill_gap": ["<Specific Missing Skill 1>", "<Specific Missing Skill 2>"],
+  "ai_roadmap_note": "A 3-sentence high-level technical strategy. Define the 'Technical North Star' for this candidate.",
+  "skill_gap": ["Specific technical gaps found after analyzing their current skills vs the target role."],
   "readiness_estimate": <int 0-100>,
   "estimated_weeks": <int 4-24>,
-  "priority_order": ["<Skill 1>", "<Skill 2>"],
+  "priority_order": ["The most critical concepts to master first, in order."],
   "ai_resources": [
-    {{"topic": "<Topic>", "resource": "<Specific High-Quality Resource>", "url": "<url>", "why": "<Technical justification relative to their level>"}}
+    {{"topic": "Name", "resource": "Specific Resource Name", "url": "url", "why": "Detailed technical reason why this is essential for their level."}}
   ],
-  "ai_weekly_tip": "<A niche pro-tip only a senior would know for THIS specific role.>",
+  "ai_weekly_tip": "A 'secret' industry insight or a common 'senior-level' interview trap for this role.",
   "custom_phases": [
-    {{"phase": 1, "name": "<Technical Phase Name>", "topics": ["<Topic 1>"], "goal": "<Concrete technical milestone>"}}
+    {{"phase": 1, "name": "Strategic Phase Name", "topics": ["Topic 1", "Topic 2"], "goal": "A concrete technical deliverable."}}
   ],
   "custom_schedule": [
-    {{"day": "Monday", "focus": "<Niche Topic>", "activities": ["<Advanced coding task 1>"]}}
+    {{"day": "Monday", "focus": "Deep work topic", "activities": ["Specific advanced task", "Edge-case analysis"]}}
   ],
   "project_ideas": [
-    {{"name": "<Unique Name>", "description": "<Complex description forcing use of gaps>", "stack": ["<Tech 1>"], "difficulty": "hard"}}
+    {{"name": "Project Name", "description": "A complex, production-grade system description. NO CRUD. Must involve scaling, security, or performance.", "stack": ["Tech A", "Tech B"], "difficulty": "hard"}}
   ],
   "weekly_breakdown": [
-    {{"week": 1, "focus": "<Specific Topic>", "goal": "<Concrete outcome>", "key_concepts": ["<Concept 1>"]}}
+    {{"week": 1, "focus": "Weekly focus", "goal": "Weekly goal", "key_concepts": ["Concept 1", "Concept 2"], "recommended_practice": "Specific coding exercise or lab"}}
   ],
   "milestones": [
-    {{"week": <int>, "goal": "<Concrete technical achievement>"}}
+    {{"week": 4, "goal": "Technical Milestone Name", "criteria": "What must be accomplished to consider this done."}}
   ],
   "interviewer_perspective": [
-    {{"question": "<A hard technical question>", "what_they_look_for": "<Detailed evaluation criteria>"}}
+    {{"question": "A senior-level situational or system design question.", "what_they_look_for": "Deep technical signals the interviewer is hunting for."}}
   ]
 }}
+
+Respond ONLY with valid JSON.
 """
     raw = await complete(prompt, SYSTEM_INTERVIEW_EXPERT, provider_override=provider, host_override=host, model_override=model, gemini_api_key_override=api_key)
     if not raw:
