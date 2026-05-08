@@ -460,7 +460,7 @@ export default function InterviewPage() {
                 {[
                   { label: 'Semantic', key: 'semantic', color: '#6366f1' },
                   { label: 'Factual', key: 'factual', color: '#8b5cf6' },
-                  { label: 'Complete', key: 'completeness', color: '#06b6d4' },
+                  { label: 'Completeness', key: 'completeness', color: '#06b6d4' },
                   { label: 'Clarity', key: 'clarity', color: '#10b981' },
                 ].map((m) => (
                   <div key={m.key} style={{ textAlign: 'center', padding: 12, background: 'rgba(255,255,255,0.03)', borderRadius: 10 }}>
@@ -469,6 +469,20 @@ export default function InterviewPage() {
                   </div>
                 ))}
               </div>
+
+              {evaluation.detailed_analysis?.ai_tip && (
+                <div style={{ padding: 16, borderRadius: 12, background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%)', border: '1px solid rgba(99, 102, 241, 0.2)', marginBottom: 20 }}>
+                  <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                    <div style={{ width: 32, height: 32, borderRadius: 8, background: 'var(--gradient-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <Lightbulb size={16} color="white" />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--accent-primary)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 2 }}>Senior Interviewer's Pro-Tip</div>
+                      <p style={{ fontSize: 13, color: 'var(--text-primary)', fontStyle: 'italic', lineHeight: 1.4 }}>"{evaluation.detailed_analysis.ai_tip}"</p>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 10, padding: 16, marginBottom: 16 }}>
                 <p style={{ fontSize: 14, lineHeight: 1.7, color: 'var(--text-secondary)' }}>{evaluation.feedback}</p>
@@ -510,15 +524,10 @@ function getFallbackQuestion(type: string, difficulty: string, index: number) {
     { text: 'What is database normalization? Explain up to 3NF with examples.', category: 'Databases', keywords: ['1NF', '2NF', '3NF', 'redundancy', 'functional dependency'], expected_answer: '1NF: atomic values. 2NF: no partial dependencies. 3NF: no transitive dependencies. Normalization reduces redundancy but may increase JOIN complexity.' },
     { text: 'How would you detect and resolve a deadlock in a concurrent system?', category: 'OS', keywords: ['mutual exclusion', 'hold and wait', 'circular wait', 'resource ordering'], expected_answer: 'Deadlocks require 4 conditions. Prevention strategies: resource ordering, timeouts, lock hierarchy. Detection: wait-for graphs. Resolution: process termination or rollback.' },
     { text: 'Describe the differences between REST and GraphQL APIs.', category: 'Web', keywords: ['over-fetching', 'schema', 'resolver', 'endpoint'], expected_answer: 'REST uses multiple endpoints with fixed responses. GraphQL uses a single endpoint with client-specified queries, reducing over/under-fetching.' },
-    { text: 'Explain how a hash map handles collisions and achieves O(1) average lookup.', category: 'Data Structures', keywords: ['chaining', 'open addressing', 'load factor', 'rehashing'], expected_answer: 'Hash maps use a hash function to map keys to buckets. Collisions are resolved via chaining (linked lists) or open addressing (probing). Load factor triggers rehashing.' },
-    { text: 'Walk me through designing an LRU Cache from scratch.', category: 'Data Structures', keywords: ['doubly linked list', 'hashmap', 'O(1)', 'eviction'], expected_answer: 'Combine a HashMap (key → node) with a Doubly Linked List (order). get/put are O(1). On capacity overflow, evict the tail node (least recently used).' },
-    { text: 'Describe a time you had to learn a new technology quickly under pressure.', category: 'Behavioral', keywords: ['adaptability', 'learning', 'time management', 'growth mindset'], expected_answer: 'STAR: Situation with tight deadline, Task requiring new tech, Action steps taken to learn quickly, Result achieved successfully.' },
-    { text: 'What are indexes in databases and how do they improve query performance?', category: 'Databases', keywords: ['B-tree', 'clustered', 'non-clustered', 'query optimizer'], expected_answer: 'Indexes are B-tree/hash structures that allow O(log n) lookups instead of O(n) scans. Trade-off: faster reads but slower writes and extra storage.' },
-    { text: 'Explain the concept of Virtual Memory and how paging works.', category: 'OS', keywords: ['page table', 'page fault', 'swap', 'TLB'], expected_answer: 'Virtual memory maps logical addresses to physical via page tables. When a page isn\'t in RAM, a page fault triggers loading from disk. TLB caches translations.' },
-    { text: 'How would you design a URL shortener like bit.ly?', category: 'System Design', keywords: ['base62', 'hashing', 'database', 'redirection', 'analytics'], expected_answer: 'Generate short codes via base62 encoding of auto-increment IDs or hash. Store in DB (short → long URL). 301/302 redirect. Add caching (Redis) for hot URLs.' },
-    { text: 'What is the difference between var, let, and const in JavaScript?', category: 'JavaScript', keywords: ['hoisting', 'block scope', 'function scope', 'temporal dead zone'], expected_answer: 'var is function-scoped and hoisted. let is block-scoped, not hoisted to use before declaration. const is block-scoped and cannot be reassigned.' },
-    { text: 'Explain the Observer and Strategy design patterns with use cases.', category: 'OOP', keywords: ['publish-subscribe', 'decoupling', 'runtime behavior', 'interfaces'], expected_answer: 'Observer: one-to-many notification (event systems). Strategy: swap algorithms at runtime via interfaces (sorting strategies, payment methods).' },
-    { text: 'How does HTTPS work? Explain the TLS handshake process.', category: 'Networking', keywords: ['TLS', 'certificate', 'asymmetric', 'symmetric', 'handshake'], expected_answer: 'Client sends hello → server sends certificate → client verifies CA → they exchange keys via asymmetric encryption → switch to symmetric for fast data transfer.' },
+    { text: 'What is the Global Interpreter Lock (GIL) in Python and why does it exist?', category: 'Python', keywords: ['thread-safety', 'parallelism', 'CPU-bound', 'reference counting'], expected_answer: 'The GIL is a mutex that protects access to Python objects, preventing multiple native threads from executing Python bytecodes at once. It ensures thread safety for memory management but limits parallelism in CPU-bound tasks.' },
+    { text: 'Explain the difference between SQL and NoSQL. When would you choose one over the other?', category: 'Databases', keywords: ['relational', 'horizontal scaling', 'schema', 'ACID', 'BASE'], expected_answer: 'SQL is relational with schemas and ACID. NoSQL is non-relational, flexible, and horizontal scaling. Use SQL for complex queries/transactions; NoSQL for large unstructured data and high write throughput.' },
+    { text: 'What is Serverless computing and what are its pros and cons?', category: 'Cloud', keywords: ['FaaS', 'cold start', 'auto-scaling', 'managed', 'event-driven'], expected_answer: 'Serverless (FaaS) allows running code without server management. Pros: auto-scaling, pay-per-use. Cons: cold starts, vendor lock-in, statelessness.' },
+    { text: 'Design a simple rate-limiting system for an API.', category: 'System Design', keywords: ['token bucket', 'leaky bucket', 'sliding window', 'Redis'], expected_answer: 'Common algorithms: Token Bucket, Leaky Bucket, Sliding Window Log. Use Redis for centralized counter storage with TTL.' },
   ];
   return questions[index % questions.length];
 }
