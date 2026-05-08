@@ -14,6 +14,9 @@ export default function LearningPathPage() {
     currentSkills: (user?.profile?.skills || []).join(', '),
     experienceLevel: user?.profile?.experience || 'fresher',
     availableHours: 10,
+    focusAreas: '',
+    projectPreference: 'fullstack',
+    learningStyle: 'practical',
   });
 
   const generate = async () => {
@@ -24,6 +27,9 @@ export default function LearningPathPage() {
         currentSkills: config.currentSkills.split(',').map((s) => s.trim()).filter(Boolean),
         experienceLevel: config.experienceLevel,
         availableHours: config.availableHours,
+        focus_areas: config.focusAreas.split(',').map((s) => s.trim()).filter(Boolean),
+        project_preference: config.projectPreference,
+        learning_style: config.learningStyle,
       });
       setPath(data);
     } catch (err) {
@@ -72,11 +78,37 @@ export default function LearningPathPage() {
                 </select>
               </div>
               <div className="form-group">
+                <label className="form-label">Focus Areas (comma-separated)</label>
+                <input className="form-input" placeholder="Distributed systems, Performance, Security..." value={config.focusAreas} onChange={(e) => setConfig({ ...config, focusAreas: e.target.value })} />
+              </div>
+
+              <div className="grid-2" style={{ gap: 12 }}>
+                <div className="form-group">
+                  <label className="form-label">Project Preference</label>
+                  <select className="form-input" value={config.projectPreference} onChange={(e) => setConfig({ ...config, projectPreference: e.target.value })}>
+                    <option value="fullstack">Fullstack App</option>
+                    <option value="backend">Backend Service</option>
+                    <option value="frontend">Frontend Project</option>
+                    <option value="cli">CLI Tool</option>
+                    <option value="system">System Tool</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Learning Style</label>
+                  <select className="form-input" value={config.learningStyle} onChange={(e) => setConfig({ ...config, learningStyle: e.target.value })}>
+                    <option value="practical">Hands-on / Practical</option>
+                    <option value="theoretical">Deep Theory / Academic</option>
+                    <option value="balanced">Balanced Approach</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="form-group">
                 <label className="form-label">Available Hours per Week: <strong>{config.availableHours}h</strong></label>
                 <input type="range" min="2" max="40" value={config.availableHours} onChange={(e) => setConfig({ ...config, availableHours: +e.target.value })} style={{ width: '100%', accentColor: 'var(--accent-primary)' }} />
               </div>
-              <button className="btn btn-primary" style={{ width: '100%', padding: 14 }} onClick={generate} disabled={isLoading}>
-                {isLoading ? <><span className="spinner" style={{ width: 18, height: 18, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'white', borderRadius: '50%', display: 'inline-block' }} /> Generating...</> : <><Map size={16} /> Generate My Learning Path</>}
+              <button className="btn btn-primary" style={{ width: '100%', padding: 14, marginTop: 12 }} onClick={generate} disabled={isLoading}>
+                {isLoading ? <><span className="spinner" style={{ width: 18, height: 18, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'white', borderRadius: '50%', display: 'inline-block' }} /> Brainstorming Your Path...</> : <><Map size={16} /> Generate My Learning Path</>}
               </button>
             </div>
           </div>
@@ -146,6 +178,66 @@ export default function LearningPathPage() {
             </div>
 
             {/* Weekly Schedule */}
+            <div className="card" style={{ padding: 24, marginBottom: 24, background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%)', border: '1px solid rgba(99, 102, 241, 0.2)' }}>
+              <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+                <div style={{ width: 48, height: 48, borderRadius: 12, background: 'var(--gradient-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <Zap size={24} color="white" />
+                </div>
+                <div>
+                  <h3 style={{ fontWeight: 800, fontSize: 18, marginBottom: 4 }}>Mentor's Strategic Roadmap</h3>
+                  <p style={{ color: 'var(--text-secondary)', fontSize: 14, lineHeight: 1.5 }}>{path.ai_roadmap_note}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid-2" style={{ marginBottom: 28 }}>
+              {/* Weekly Breakdown */}
+              <div className="card" style={{ padding: 24 }}>
+                <h3 style={{ fontWeight: 700, marginBottom: 20 }}>Weekly Milestones</h3>
+                <div className="timeline">
+                  {path.weekly_breakdown?.map((week: any, i: number) => (
+                    <div key={i} style={{ position: 'relative', paddingLeft: 24, paddingBottom: 24, borderLeft: '2px solid var(--border)' }}>
+                      <div style={{ position: 'absolute', left: -7, top: 0, width: 12, height: 12, borderRadius: '50%', background: 'var(--accent-primary)' }} />
+                      <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 4 }}>Week {week.week}: {week.focus}</div>
+                      <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 8 }}>{week.goal}</p>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                        {week.key_concepts?.map((c: string) => <span key={c} className="chip" style={{ fontSize: 10, background: 'rgba(255,255,255,0.05)' }}>{c}</span>)}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Project Blueprints */}
+              <div className="card" style={{ padding: 24 }}>
+                <h3 style={{ fontWeight: 700, marginBottom: 20 }}>Capstone Projects</h3>
+                {path.ai_project_ideas?.map((project: any, i: number) => (
+                  <div key={i} className="stat-card" style={{ marginBottom: 16, border: '1px solid var(--border)', background: 'rgba(255,255,255,0.02)' }}>
+                    <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 8, color: 'var(--accent-primary)' }}>{project.name}</div>
+                    <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 12 }}>{project.description}</p>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                      {project.stack?.map((s: string) => <span key={s} style={{ fontSize: 10, color: 'var(--text-muted)' }}>#{s}</span>)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Interviewer Perspective */}
+            <div className="card" style={{ padding: 24, marginBottom: 24 }}>
+              <h3 style={{ fontWeight: 700, marginBottom: 20 }}>The Interviewer's Perspective</h3>
+              <div className="grid-2" style={{ gap: 20 }}>
+                {path.interviewer_perspective?.map((item: any, i: number) => (
+                  <div key={i} style={{ padding: 16, borderRadius: 12, background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border)' }}>
+                    <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 8, color: 'var(--text-primary)' }}>Q: {item.question}</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontStyle: 'italic' }}>
+                      <strong>What they look for:</strong> {item.what_they_look_for}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             <div className="card" style={{ padding: 24, marginBottom: 24 }}>
               <h3 style={{ fontWeight: 700, marginBottom: 20 }}>📅 Weekly Study Schedule</h3>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 10 }}>

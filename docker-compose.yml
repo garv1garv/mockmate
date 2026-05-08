@@ -15,7 +15,7 @@ services:
       context: ./ml_service
       dockerfile: Dockerfile
     ports:
-      - "8000:8000"
+      - "8000:8000"za
     environment:
       - AI_PROVIDER=ollama
       - OLLAMA_HOST=http://host.docker.internal:11434

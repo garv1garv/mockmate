@@ -371,13 +371,15 @@ async def ai_generate_learning_path(
     current_skills: list[str],
     experience_level: str,
     weak_topics: list[str],
+    focus_areas: list[str],
+    project_preference: str,
+    learning_style: str,
     hours_per_week: int,
     base_path: dict,
     ai_settings: Optional[dict] = None,
 ) -> Optional[dict]:
     """
-    Use AI to personalise the learning path roadmap.
-    Returns dict with: ai_roadmap_note, ai_resources, ai_weekly_tip.
+    Use AI to personalise the learning path roadmap with high accuracy and uniqueness.
     """
     settings = ai_settings or {}
     provider = settings.get("provider", AI_PROVIDER)
@@ -387,47 +389,63 @@ async def ai_generate_learning_path(
 
     skills_str = ", ".join(current_skills[:15]) if current_skills else "None listed"
     gaps_str = ", ".join(base_path.get("skill_gap", [])[:10]) or "None"
+    
+    # Randomization layer to ensure unique architectural angles every time
+    angles = [
+        "Focus on high-performance optimization and low-latency design.",
+        "Focus on resilient, distributed systems and fault tolerance.",
+        "Focus on modern developer productivity, DX, and automated CI/CD excellence.",
+        "Focus on security-first architecture and zero-trust principles.",
+        "Focus on cost-efficiency, serverless scaling, and cloud-native patterns.",
+        "Focus on data-driven decision making and observability-centric development."
+    ]
+    selected_angle = random.choice(angles)
+
     prompt = f"""
-You are a Senior Staff Engineer and Elite Technical Mentor. Create a rigorous, high-fidelity, and DEEPLY technical study roadmap. 
-CRITICAL: Avoid generic advice like "learn data structures" or "practice coding". Be hyper-specific.
+You are a Senior Staff Engineer and Elite Technical Mentor. Create a rigorous, high-fidelity, and DEEPLY technical study roadmap.
+CRITICAL: Every roadmap you generate must be UNIQUE. Even for the same input, explore different technical architectures or specialized paradigms.
+
+CURRENT STRATEGIC ANGLE (Apply this mindset): {selected_angle}
 
 TARGET ROLE: {target_role}
 EXPERIENCE LEVEL: {experience_level}
+LEARNING STYLE: {learning_style}
+PROJECT PREFERENCE: {project_preference}
 CURRENT SKILLS: {skills_str}
-IDENTIFIED SKILLS GAP (MUST FOCUS ON THESE): {gaps_str}
+IDENTIFIED SKILLS GAP: {gaps_str}
 USER-REPORTED WEAK TOPICS: {", ".join(weak_topics) if weak_topics else "None"}
+SPECIFIC FOCUS AREAS: {", ".join(focus_areas) if focus_areas else "General Mastery"}
 STUDY ALLOCATION: {hours_per_week} hours/week over {base_path.get('estimated_weeks', '8')} weeks
+
+INSTRUCTIONS:
+1. Provide a STAFF-LEVEL strategic overview. Identify a specific high-impact technical shift.
+2. Generate a DETAILED weekly breakdown for the first 4 weeks, then bi-weekly after.
+3. Suggest 3 specific, non-generic project ideas tailored to {project_preference}.
+4. Resources MUST be specific (e.g., "The Go Programming Language, Ch 8" not just "Learn Go").
+5. Include "The Interviewer's Perspective": 3 hard questions the user must master.
 
 Respond with ONLY valid JSON:
 {{
-  "ai_roadmap_note": "<A 3-sentence staff-level strategic overview. Identify the specific architectural paradigm or high-impact technical shift the candidate needs to make (e.g., moving from MVC to Event-Driven Microservices). NO generic encouragement.>",
+  "ai_roadmap_note": "<A 3-sentence technical strategy. No generic encouragement.>",
   "ai_resources": [
-    {{"topic": "<Topic Name>", "resource": "<Specific High-Quality Course/Doc/Repo>", "url": "<url>", "why": "<Detailed technical justification why this specific resource fixes their identified gap at their current level>"}},
-    {{"topic": "<Topic Name>", "resource": "<Specific High-Quality Course/Doc/Repo>", "url": "<url>", "why": "<Detailed technical justification why this specific resource fixes their identified gap at their current level>"}},
-    {{"topic": "<Topic Name>", "resource": "<Specific High-Quality Course/Doc/Repo>", "url": "<url>", "why": "<Detailed technical justification why this specific resource fixes their identified gap at their current level>"}}
+    {{"topic": "<Topic>", "resource": "<Specific High-Quality Resource>", "url": "<url>", "why": "<Technical justification>"}}
   ],
-  "ai_weekly_tip": "<A 'pro-tip' that only a senior engineer would know about this specific role (e.g., specific concurrency patterns in Go, or how to handle hydration mismatches in Next.js).>",
-  "priority_order": ["<Highest impact technical skill 1>", "<Skill 2>", "<Skill 3>"],
+  "ai_weekly_tip": "<A niche pro-tip only a senior would know.>",
+  "priority_order": ["<Skill 1>", "<Skill 2>", "<Skill 3>"],
   "custom_phases": [
-    {{"phase": 1, "name": "<Staff-Level Phase Name>", "topics": ["<Specific Topic 1>", "<Specific Topic 2>"], "goal": "<A concrete technical milestone, e.g., 'Implement a distributed rate-limiter'>"}},
-    {{"phase": 2, "name": "<Staff-Level Phase Name>", "topics": ["<Specific Topic 3>", "<Specific Topic 4>"], "goal": "<A concrete technical milestone>"}},
-    {{"phase": 3, "name": "<Staff-Level Phase Name>", "topics": ["<Specific Topic 5>", "<Specific Topic 6>"], "goal": "<A concrete technical milestone>"}}
+    {{"phase": 1, "name": "<Technical Phase Name>", "topics": ["<Topic 1>", "<Topic 2>"], "goal": "<Concrete technical milestone>"}}
   ],
   "custom_schedule": [
-    {{"day": "Monday", "focus": "<Niche Topic>", "activities": ["<Advanced coding task 1>", "<Advanced coding task 2>"]}},
-    {{"day": "Tuesday", "focus": "<Niche Topic>", "activities": ["<Advanced coding task 1>", "<Advanced coding task 2>"]}},
-    {{"day": "Wednesday", "focus": "<Niche Topic>", "activities": ["<Advanced coding task 1>", "<Advanced coding task 2>"]}},
-    {{"day": "Thursday", "focus": "<Niche Topic>", "activities": ["<Advanced coding task 1>", "<Advanced coding task 2>"]}},
-    {{"day": "Friday", "focus": "<Niche Topic>", "activities": ["<Advanced coding task 1>", "<Advanced coding task 2>"]}},
-    {{"day": "Saturday", "focus": "System Design & Deep Work", "activities": ["<Architecture whiteboarding>", "<Open source contribution>"]}},
-    {{"day": "Sunday", "focus": "Interview Simulation", "activities": ["<Hard-difficulty mock session>", "<Review analytics>"]}}
+    {{"day": "Monday", "focus": "<Niche Topic>", "activities": ["<Advanced coding task 1>"]}}
   ],
   "project_ideas": [
-    {{"name": "<Unique Project Name>", "description": "<A complex, multi-layered project description that forces the use of missing skills. NO simple CRUD apps.>", "difficulty": "hard"}}
+    {{"name": "<Unique Name>", "description": "<Complex description forcing use of gaps>", "stack": ["<Tech 1>", "<Tech 2>"], "difficulty": "hard"}}
   ],
   "weekly_breakdown": [
-    {{"week": 1, "focus": "<specific topic>", "goal": "<concrete outcome>"}},
-    {{"week": 2, "focus": "<specific topic>", "goal": "<concrete outcome>"}}
+    {{"week": 1, "focus": "<Specific Topic>", "goal": "<Concrete outcome>", "key_concepts": ["<Concept 1>", "<Concept 2>"]}}
+  ],
+  "interviewer_perspective": [
+    {{"question": "<A hard technical question>", "what_they_look_for": "<Detailed evaluation criteria>"}}
   ]
 }}
 """

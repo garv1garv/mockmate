@@ -14,6 +14,9 @@ class LearningPathRequest(BaseModel):
     experience_level: Optional[str] = "fresher"
     weak_topics: Optional[List[str]] = []
     available_hours_per_week: Optional[int] = 10
+    focus_areas: Optional[List[str]] = []
+    project_preference: Optional[str] = "fullstack"
+    learning_style: Optional[str] = "practical"
     ai_settings: Optional[Dict] = None
 
 
@@ -180,6 +183,9 @@ async def generate_learning_path(request: LearningPathRequest):
         current_skills=list(request.current_skills or []),
         experience_level=request.experience_level or "fresher",
         weak_topics=list(request.weak_topics or []),
+        focus_areas=list(request.focus_areas or []),
+        project_preference=request.project_preference or "fullstack",
+        learning_style=request.learning_style or "practical",
         hours_per_week=request.available_hours_per_week or 10,
         base_path=base_path,
         ai_settings=request.ai_settings,
@@ -210,7 +216,8 @@ async def generate_learning_path(request: LearningPathRequest):
             "ai_weekly_tip":    ai_result.get("ai_weekly_tip"),
             "ai_priority_order": ai_result.get("priority_order", []),
             "ai_project_ideas": ai_result.get("project_ideas", []),
-            "ai_weekly_breakdown": ai_result.get("weekly_breakdown", []),
+            "weekly_breakdown": ai_result.get("weekly_breakdown", []),
+            "interviewer_perspective": ai_result.get("interviewer_perspective", []),
             "ai_powered":       True,
         } if ai_result else {"ai_powered": False}),
     }
