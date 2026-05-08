@@ -142,7 +142,7 @@ export default function ResumePage() {
             )}
 
             {isGeneratingCL && (
-              <div className="card" style={{ padding: 40, textAlign: 'center', marginBottom: 20, background: 'var(--bg-card)' }}>
+              <div className="card" style={{ padding: 40, textAlign: 'center', marginBottom: 20, background: 'linear-gradient(to right, rgba(99,102,241,0.05), rgba(139,92,246,0.05))' }}>
                 <div className="spinner" style={{ width: 48, height: 48, border: '3px solid rgba(139,92,246,0.2)', borderTopColor: '#8b5cf6', borderRadius: '50%', margin: '0 auto 20px' }} />
                 <h3 style={{ fontWeight: 700, marginBottom: 8 }}>Writing Your Cover Letter</h3>
                 <p style={{ color: 'var(--text-secondary)', fontSize: 14 }}>Tailoring your experience to the target role perfectly...</p>
@@ -172,7 +172,7 @@ export default function ResumePage() {
                       { label: 'Credibility', value: analysis.credibility_score, icon: Star },
                       ...(analysis.jd_match !== null ? [{ label: 'JD Match', value: analysis.jd_match, icon: CheckCircle }] : []),
                     ].map((s) => (
-                      <div key={s.label} style={{ flex: 1, textAlign: 'center', padding: '16px 12px', background: 'var(--bg-card-hover)', borderRadius: 12, border: `1px solid ${getScoreColor(s.value)}30` }}>
+                      <div key={s.label} style={{ flex: 1, textAlign: 'center', padding: '16px 12px', background: 'rgba(255,255,255,0.03)', borderRadius: 12, border: `1px solid ${getScoreColor(s.value)}30` }}>
                         <div style={{ fontSize: 28, fontWeight: 800, color: getScoreColor(s.value), marginBottom: 4 }}>{s.value}%</div>
                         <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 2 }}>{s.label}</div>
                         <div style={{ fontSize: 10, color: getScoreColor(s.value) }}>{getScoreLabel(s.value)}</div>

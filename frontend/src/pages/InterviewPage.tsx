@@ -342,7 +342,7 @@ export default function InterviewPage() {
               <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
                 <button className="btn btn-primary" style={{ flex: 1 }} onClick={handleSubmitAnswer} disabled={!answer.trim() || isEvaluating}>
                   {isEvaluating ? (
-                    <><span className="spinner" style={{ width: 16, height: 16, border: '2px solid rgba(0,0,0,0.1)', borderTopColor: 'var(--accent-primary)', borderRadius: '50%', display: 'inline-block' }} /> Evaluating...</>
+                    <><span className="spinner" style={{ width: 16, height: 16, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'white', borderRadius: '50%', display: 'inline-block' }} /> Evaluating...</>
                   ) : (
                     <><CheckCircle size={16} /> Submit Answer</>
                   )}
@@ -368,14 +368,14 @@ export default function InterviewPage() {
                   { label: 'Complete', key: 'completeness', color: '#06b6d4' },
                   { label: 'Clarity', key: 'clarity', color: '#10b981' },
                 ].map((m) => (
-                  <div key={m.key} style={{ textAlign: 'center', padding: 12, background: 'var(--bg-card-hover)', borderRadius: 10 }}>
+                  <div key={m.key} style={{ textAlign: 'center', padding: 12, background: 'rgba(255,255,255,0.03)', borderRadius: 10 }}>
                     <div style={{ fontSize: 22, fontWeight: 800, color: m.color }}>{evaluation.scores?.[m.key] || 0}%</div>
                     <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>{m.label}</div>
                   </div>
                 ))}
               </div>
 
-              <div style={{ background: 'var(--bg-card-hover)', borderRadius: 10, padding: 16, marginBottom: 16 }}>
+              <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 10, padding: 16, marginBottom: 16 }}>
                 <p style={{ fontSize: 14, lineHeight: 1.7, color: 'var(--text-secondary)' }}>{evaluation.feedback}</p>
               </div>
 
