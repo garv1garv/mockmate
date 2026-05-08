@@ -132,6 +132,21 @@ export default function LearningPathPage() {
               ))}
             </div>
 
+            {path.skill_gap && path.skill_gap.length > 0 && (
+              <div className="card" style={{ padding: 20, marginBottom: 28, border: '1px dashed var(--accent-primary)', background: 'rgba(99, 102, 241, 0.05)' }}>
+                <h4 style={{ fontSize: 14, fontWeight: 700, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Target size={16} color="var(--accent-primary)" /> Identified Skill Gaps
+                </h4>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                  {path.skill_gap.map((skill: string) => (
+                    <span key={skill} style={{ fontSize: 11, padding: '4px 10px', borderRadius: 20, background: 'rgba(0,0,0,0.3)', color: 'var(--text-primary)', border: '1px solid var(--border)' }}>
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="grid-2" style={{ marginBottom: 28 }}>
               {/* Phases */}
               <div className="card" style={{ padding: 24 }}>
@@ -160,7 +175,8 @@ export default function LearningPathPage() {
                     </div>
                     <div>
                       <div style={{ fontSize: 12, color: 'var(--accent-primary)', fontWeight: 600, marginBottom: 2 }}>Week {m.week}</div>
-                      <div style={{ fontSize: 14 }}>{m.goal}</div>
+                      <div style={{ fontSize: 14, fontWeight: 600 }}>{m.goal}</div>
+                      {m.criteria && <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 4 }}>🎯 {m.criteria}</div>}
                     </div>
                   </div>
                 ))}
@@ -204,6 +220,11 @@ export default function LearningPathPage() {
                           <div style={{ position: 'absolute', left: -7, top: 0, width: 12, height: 12, borderRadius: '50%', background: 'var(--accent-primary)' }} />
                           <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 4 }}>Week {week.week}: {week.focus}</div>
                           <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 8 }}>{week.goal}</p>
+                          {week.recommended_practice && (
+                            <div style={{ fontSize: 11, background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', padding: '6px 10px', borderRadius: 6, marginBottom: 8, border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                              <strong>Practice:</strong> {week.recommended_practice}
+                            </div>
+                          )}
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                             {week.key_concepts?.map((c: string) => <span key={c} className="chip" style={{ fontSize: 10, background: 'rgba(255,255,255,0.05)' }}>{c}</span>)}
                           </div>
@@ -280,10 +301,10 @@ function getMockPath(role: string) {
     priority_topics: ['Data Structures', 'Algorithms', 'System Design', 'TypeScript', 'Docker', 'Redis'],
     ai_roadmap_note: "Focus on transitioning from monolithic CRUD applications to event-driven microservices. Prioritize asynchronous communication patterns and distributed caching to handle high-concurrency scenarios effectively.",
     weekly_breakdown: [
-      { week: 1, focus: "Advanced Data Structures", goal: "Master non-linear structures", key_concepts: ["Tries", "Graphs", "AVL Trees"] },
-      { week: 2, focus: "System Design Patterns", goal: "Understand scalability", key_concepts: ["Sharding", "Replication", "Load Balancing"] },
-      { week: 3, focus: "Cloud Native Deployment", goal: "Docker & K8s basics", key_concepts: ["Containers", "Pod Orchestration", "Services"] },
-      { week: 4, focus: "Security & Auth", goal: "Secure API design", key_concepts: ["OAuth2", "JWT", "RBAC"] }
+      { week: 1, focus: "Advanced Data Structures", goal: "Master non-linear structures", key_concepts: ["Tries", "Graphs", "AVL Trees"], recommended_practice: "Implement a prefix-tree for autocomplete." },
+      { week: 2, focus: "System Design Patterns", goal: "Understand scalability", key_concepts: ["Sharding", "Replication", "Load Balancing"], recommended_practice: "Whiteboard a sharding strategy for a global chat app." },
+      { week: 3, focus: "Cloud Native Deployment", goal: "Docker & K8s basics", key_concepts: ["Containers", "Pod Orchestration", "Services"], recommended_practice: "Containerize a multi-service app and deploy to a local cluster." },
+      { week: 4, focus: "Security & Auth", goal: "Secure API design", key_concepts: ["OAuth2", "JWT", "RBAC"], recommended_practice: "Implement a zero-trust auth flow for a banking API." }
     ],
     ai_project_ideas: [
       { name: "Distributed Task Scheduler", description: "Build a system that schedules and executes tasks across multiple nodes using a message queue.", stack: ["Node.js", "Redis", "RabbitMQ"], difficulty: "hard" },
@@ -299,10 +320,10 @@ function getMockPath(role: string) {
       { phase: 3, name: 'Interview Ready', duration_weeks: 4, goal: 'Master advanced topics', topics: ['Mock Interviews', 'Behavioral', 'Company Research'] },
     ],
     milestones: [
-      { week: 3, goal: 'Complete foundation modules' },
-      { week: 6, goal: 'Solve 50 LeetCode problems' },
-      { week: 9, goal: 'Complete 5 mock interviews' },
-      { week: 12, goal: 'Interview ready!' },
+      { week: 3, goal: 'Complete foundation modules', criteria: "Pass 5 hard-difficulty DSA assessments." },
+      { week: 6, goal: 'Solve 50 LeetCode problems', criteria: "Maintain a 100% pass rate on edge cases." },
+      { week: 9, goal: 'Complete 5 mock interviews', criteria: "Receive an 'Elite' rating for system design." },
+      { week: 12, goal: 'Interview ready!', criteria: "Successfully simulate a full technical on-site." },
     ],
     daily_schedule: [
       { day: 'Monday', hours: 2, focus: 'DSA Practice' },
