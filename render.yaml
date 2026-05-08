@@ -1,0 +1,48 @@
+services:
+  # 1. ML Service (Python/FastAPI)
+  - type: web
+    name: mockmate-ml
+    env: python
+    rootDir: ml_service
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn main:app -w 2 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT
+    envVars:
+      - key: AI_PROVIDER
+        value: gemini
+      - key: GEMINI_API_KEY
+        sync: false
+
+  # 2. Backend Service (Node/Express)
+  - type: web
+    name: mockmate-backend
+    env: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: MONGODB_URI
+        sync: false
+      - key: ML_SERVICE_URL
+        fromService:
+          name: mockmate-ml
+          type: web
+          property: host
+      - key: JWT_SECRET
+        generateValue: true
+      - key: NODE_ENV
+        value: production
+
+  # 3. Frontend Service (React/Vite)
+  - type: web
+    name: mockmate-frontend
+    env: static
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          name: mockmate-backend
+          type: web
+          property: host
+        suffix: /api

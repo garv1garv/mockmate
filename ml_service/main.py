@@ -15,7 +15,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:5000"],
+    allow_origins=["*"], # Allow all for simplicity in microservice environment
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -45,3 +45,9 @@ async def ai_status():
 @app.get("/")
 async def root():
     return {"message": "MockMate ML Service is running", "docs": "/docs"}
+
+
+if __name__ == "__main__":
+    import uvicorn
+    port = int(os.getenv("PORT", 8000))
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=False)
