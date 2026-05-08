@@ -191,20 +191,22 @@ async def generate_learning_path(request: LearningPathRequest):
         ai_settings=request.ai_settings,
     )
 
+    # Calculate readiness based on what we have
     readiness = max(10, min(90, (len(request.current_skills) / max(len(all_required), 1)) * 100))
 
+    # Construct the final response, prioritizing AI specificity over rule-based defaults
     return {
         "target_role":       request.target_role,
         "current_level":     request.experience_level,
-        "skill_gap":         skill_gap,
-        "priority_topics":   priority_topics[:10],
-        "estimated_weeks":   weeks_needed,
-        "total_study_hours": total_hours,
+        "skill_gap":         ai_result.get("skill_gap", skill_gap) if ai_result else skill_gap,
+        "priority_topics":   ai_result.get("priority_order", priority_topics)[:10] if ai_result else priority_topics[:10],
+        "estimated_weeks":   ai_result.get("estimated_weeks", weeks_needed) if ai_result else weeks_needed,
+        "total_study_hours": (ai_result.get("estimated_weeks", weeks_needed) if ai_result else weeks_needed) * (request.available_hours_per_week or 10),
         "phases":            ai_result.get("custom_phases") if ai_result and "custom_phases" in ai_result else phases,
         "daily_schedule":    ai_result.get("custom_schedule") if ai_result and "custom_schedule" in ai_result else daily_schedule,
-        "resources":         resources,
-        "readiness_estimate": readiness,
-        "milestones": [
+        "resources":         ai_result.get("ai_resources", resources) if ai_result else resources,
+        "readiness_estimate": ai_result.get("readiness_estimate", readiness) if ai_result else readiness,
+        "milestones":        ai_result.get("milestones") if ai_result and "milestones" in ai_result else [
             {"week": weeks_needed // 4,      "goal": "Complete foundation modules"},
             {"week": weeks_needed // 2,      "goal": "Solve 50 LeetCode problems"},
             {"week": weeks_needed * 3 // 4,  "goal": "Complete 5 mock interviews"},
@@ -212,11 +214,9 @@ async def generate_learning_path(request: LearningPathRequest):
         ],
         **({
             "ai_roadmap_note":  ai_result.get("ai_roadmap_note"),
-            "ai_resources":     ai_result.get("ai_resources", []),
             "ai_weekly_tip":    ai_result.get("ai_weekly_tip"),
-            "ai_priority_order": ai_result.get("priority_order", []),
-            "ai_project_ideas": ai_result.get("project_ideas", []),
             "weekly_breakdown": ai_result.get("weekly_breakdown", []),
+            "ai_project_ideas": ai_result.get("project_ideas", []),
             "interviewer_perspective": ai_result.get("interviewer_perspective", []),
             "ai_powered":       True,
         } if ai_result else {"ai_powered": False}),

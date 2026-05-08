@@ -403,46 +403,53 @@ async def ai_generate_learning_path(
 
     prompt = f"""
 You are a Senior Staff Engineer and Elite Technical Mentor. Create a rigorous, high-fidelity, and DEEPLY technical study roadmap.
-CRITICAL: Every roadmap you generate must be UNIQUE. Even for the same input, explore different technical architectures or specialized paradigms.
+CRITICAL: Do NOT use generic boilerplate. Every single technical detail must be GROUNDED in the user's specific context.
 
 CURRENT STRATEGIC ANGLE (Apply this mindset): {selected_angle}
 
-TARGET ROLE: {target_role}
-EXPERIENCE LEVEL: {experience_level}
-LEARNING STYLE: {learning_style}
-PROJECT PREFERENCE: {project_preference}
-CURRENT SKILLS: {skills_str}
-IDENTIFIED SKILLS GAP: {gaps_str}
-USER-REPORTED WEAK TOPICS: {", ".join(weak_topics) if weak_topics else "None"}
-SPECIFIC FOCUS AREAS: {", ".join(focus_areas) if focus_areas else "General Mastery"}
-STUDY ALLOCATION: {hours_per_week} hours/week over {base_path.get('estimated_weeks', '8')} weeks
+USER CONTEXT:
+- TARGET ROLE: {target_role}
+- EXPERIENCE LEVEL: {experience_level}
+- CURRENT SKILLS: {skills_str}
+- WEAK TOPICS: {", ".join(weak_topics) if weak_topics else "None"}
+- SPECIFIC FOCUS AREAS: {", ".join(focus_areas) if focus_areas else "General Mastery"}
+- LEARNING STYLE: {learning_style}
+- PROJECT PREFERENCE: {project_preference}
+- TIME COMMITMENT: {hours_per_week} hours/week
 
 INSTRUCTIONS:
-1. Provide a STAFF-LEVEL strategic overview. Identify a specific high-impact technical shift.
-2. Generate a DETAILED weekly breakdown for the first 4 weeks, then bi-weekly after.
-3. Suggest 3 specific, non-generic project ideas tailored to {project_preference}.
-4. Resources MUST be specific (e.g., "The Go Programming Language, Ch 8" not just "Learn Go").
-5. Include "The Interviewer's Perspective": 3 hard questions the user must master.
+1. ANALYSIS: First, identify the *actual* technical gap between a {experience_level} {target_role} and the user's current skills ({skills_str}).
+2. STRATEGY: Provide a STAFF-LEVEL strategic overview (ai_roadmap_note). 
+3. ROADMAP: Generate a week-by-week breakdown. Resources MUST be specific (specific docs, specific chapters, specific repos).
+4. PROJECTS: Suggest 3 complex project ideas that force the user to apply their *missing* skills.
+5. VALIDATION: Include 3 hard interviewer questions (interviewer_perspective).
+6. METRICS: You MUST calculate 'skill_gap' (list of missing technical topics), 'readiness_estimate' (0-100), and 'estimated_weeks' based on the gap.
 
 Respond with ONLY valid JSON:
 {{
   "ai_roadmap_note": "<A 3-sentence technical strategy. No generic encouragement.>",
+  "skill_gap": ["<Specific Missing Skill 1>", "<Specific Missing Skill 2>"],
+  "readiness_estimate": <int 0-100>,
+  "estimated_weeks": <int 4-24>,
+  "priority_order": ["<Skill 1>", "<Skill 2>"],
   "ai_resources": [
-    {{"topic": "<Topic>", "resource": "<Specific High-Quality Resource>", "url": "<url>", "why": "<Technical justification>"}}
+    {{"topic": "<Topic>", "resource": "<Specific High-Quality Resource>", "url": "<url>", "why": "<Technical justification relative to their level>"}}
   ],
-  "ai_weekly_tip": "<A niche pro-tip only a senior would know.>",
-  "priority_order": ["<Skill 1>", "<Skill 2>", "<Skill 3>"],
+  "ai_weekly_tip": "<A niche pro-tip only a senior would know for THIS specific role.>",
   "custom_phases": [
-    {{"phase": 1, "name": "<Technical Phase Name>", "topics": ["<Topic 1>", "<Topic 2>"], "goal": "<Concrete technical milestone>"}}
+    {{"phase": 1, "name": "<Technical Phase Name>", "topics": ["<Topic 1>"], "goal": "<Concrete technical milestone>"}}
   ],
   "custom_schedule": [
     {{"day": "Monday", "focus": "<Niche Topic>", "activities": ["<Advanced coding task 1>"]}}
   ],
   "project_ideas": [
-    {{"name": "<Unique Name>", "description": "<Complex description forcing use of gaps>", "stack": ["<Tech 1>", "<Tech 2>"], "difficulty": "hard"}}
+    {{"name": "<Unique Name>", "description": "<Complex description forcing use of gaps>", "stack": ["<Tech 1>"], "difficulty": "hard"}}
   ],
   "weekly_breakdown": [
-    {{"week": 1, "focus": "<Specific Topic>", "goal": "<Concrete outcome>", "key_concepts": ["<Concept 1>", "<Concept 2>"]}}
+    {{"week": 1, "focus": "<Specific Topic>", "goal": "<Concrete outcome>", "key_concepts": ["<Concept 1>"]}}
+  ],
+  "milestones": [
+    {{"week": <int>, "goal": "<Concrete technical achievement>"}}
   ],
   "interviewer_perspective": [
     {{"question": "<A hard technical question>", "what_they_look_for": "<Detailed evaluation criteria>"}}
