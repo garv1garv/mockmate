@@ -23,10 +23,7 @@ services:
       - key: MONGODB_URI
         sync: false
       - key: ML_SERVICE_URL
-        fromService:
-          name: mockmate-ml
-          type: web
-          property: host
+        value: http://mockmate-ml:8000
       - key: JWT_SECRET
         generateValue: true
       - key: NODE_ENV
@@ -41,8 +38,5 @@ services:
     staticPublishPath: ./dist
     envVars:
       - key: VITE_API_URL
-        fromService:
-          name: mockmate-backend
-          type: web
-          property: host
-        suffix: /api
+        sync: false # User will set this manually to the backend's public URL
+
