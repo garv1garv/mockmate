@@ -117,12 +117,56 @@ async def generate_learning_path(request: LearningPathRequest):
         ],
     }
 
-    phase_size = max(1, len(priority_topics) // 3)
-    phases = [
-        {"phase": 1, "name": "Foundation",            "duration_weeks": max(2, weeks_needed // 4),  "topics": priority_topics[:phase_size],              "goal": "Build strong fundamentals in core concepts"},
-        {"phase": 2, "name": "Intermediate",           "duration_weeks": max(3, weeks_needed // 3),  "topics": priority_topics[phase_size:phase_size*2],  "goal": "Apply concepts to real problems and projects"},
-        {"phase": 3, "name": "Advanced & Interview Ready", "duration_weeks": max(2, weeks_needed - weeks_needed//4 - weeks_needed//3), "topics": priority_topics[phase_size*2:], "goal": "Master advanced topics and conduct mock interviews"},
-    ]
+    # ── Phase Generation (Dynamic grouping based on skill gaps) ──
+    num_phases = 3
+    phase_topics = [priority_topics[i::num_phases] for i in range(num_phases)]
+    
+    phases = []
+    phase_names = [f"Mastering {priority_topics[0] if priority_topics else 'Fundamentals'}", "Deep Dive & Implementation", "Advanced Optimization & Interview Prep"]
+    
+    for i in range(num_phases):
+        phases.append({
+            "phase": i + 1,
+            "name": phase_names[i],
+            "duration_weeks": max(1, weeks_needed // num_phases),
+            "topics": phase_topics[i],
+            "goal": f"Master {', '.join(phase_topics[i][:2])} and related concepts."
+        })
+
+    # ── Daily Schedule (Dynamic allocation of weak topics) ──
+    daily_schedule = []
+    days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    
+    # Use weak topics for early week focus
+    weekly_focus_pool = (request.weak_topics * 3 + priority_topics * 2 + ["System Design", "Mock Interview"])
+    
+    for i, day in enumerate(days):
+        focus = weekly_focus_pool[i] if i < len(weekly_focus_pool) else "Comprehensive Review"
+        daily_schedule.append({
+            "day": day,
+            "focus": focus,
+            "hours": max(1, request.available_hours_per_week // 7),
+            "activities": [
+                f"Deep dive into {focus}",
+                f"Practical {focus} exercise",
+                "Review yesterday's weak points"
+            ] if i < 5 else [f"Hands-on {focus} project", "Full mock interview session"]
+        })
+
+    resources = {
+        "Data Structures": [
+            {"title": "LeetCode 75",       "url": "https://leetcode.com", "type": "practice"},
+            {"title": "CLRS Algorithms",   "url": "#",                  "type": "book"},
+        ],
+        "System Design": [
+            {"title": "System Design Primer",                "url": "https://github.com/donnemartin/system-design-primer", "type": "article"},
+            {"title": "Designing Data-Intensive Applications", "url": "#", "type": "book"},
+        ],
+        "default": [
+            {"title": "FreeCodeCamp",    "url": "https://freecodecamp.org",   "type": "course"},
+            {"title": "The Odin Project", "url": "https://theodinproject.com", "type": "course"},
+        ],
+    }
 
     base_path = {
         "skill_gap":       skill_gap,
