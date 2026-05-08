@@ -53,25 +53,30 @@ export default function InterviewPage() {
   const startSession = async () => {
     try {
       setPreviousQuestions([]);
+      setQuestionIndex(0);
       const res = await interviewAPI.start(config) as any;
-      setSessionId(res.sessionId);
+      const newSid = res.sessionId;
+      setSessionId(newSid);
       setPhase('interview');
-      await loadNextQuestion(res.sessionId);
+      await loadNextQuestion(newSid, 0);
     } catch {
-      setSessionId('local-' + Date.now());
+      const localSid = 'local-' + Date.now();
+      setSessionId(localSid);
       setPhase('interview');
-      await loadNextQuestion('');
+      await loadNextQuestion(localSid, 0);
     }
   };
 
-  const loadNextQuestion = async (sid?: string) => {
+  const loadNextQuestion = async (sid?: string, index?: number) => {
     setIsLoadingQ(true);
     setAnswer('');
     setEvaluation(null);
     setShowHint(false);
+    const targetSid = sid || sessionId;
+    const targetIndex = index !== undefined ? index : questionIndex;
     try {
       const res = await interviewAPI.getQuestion({ 
-        sessionId: sid || sessionId, 
+        sessionId: targetSid, 
         type: config.type, 
         difficulty: config.difficulty, 
         category: config.category,
@@ -81,7 +86,7 @@ export default function InterviewPage() {
       setPreviousQuestions(prev => [...prev, res.question?.text || '']);
       setTimeLeft(res.question?.timeLimit || 180);
     } catch {
-      const fallback = getFallbackQuestion(config.type, config.difficulty, questionIndex);
+      const fallback = getFallbackQuestion(config.type, config.difficulty, targetIndex);
       setQuestion(fallback);
       setPreviousQuestions(prev => [...prev, fallback.text]);
       setTimeLeft(180);
@@ -112,11 +117,12 @@ export default function InterviewPage() {
   }, [answer, question, sessionId, config.type, isEvaluating]);
 
   const handleNext = async () => {
-    if (questionIndex + 1 >= totalQuestions) {
+    const nextIndex = questionIndex + 1;
+    if (nextIndex >= totalQuestions) {
       await finishSession();
     } else {
-      setQuestionIndex((i) => i + 1);
-      await loadNextQuestion();
+      setQuestionIndex(nextIndex);
+      await loadNextQuestion(sessionId, nextIndex);
     }
   };
 
