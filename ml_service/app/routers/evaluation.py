@@ -48,9 +48,16 @@ def compute_semantic_similarity(text1: str, text2: str) -> float:
 
 
 def check_keywords(user_answer: str, keywords: List[str]) -> tuple:
-    lower = user_answer.lower()
-    matched = [kw for kw in keywords if kw.lower() in lower]
-    missed  = [kw for kw in keywords if kw.lower() not in lower]
+    matched = []
+    missed = []
+    lower_answer = user_answer.lower()
+    for kw in keywords:
+        # Use regex to find whole word matches only, avoiding partial substring hits
+        pattern = r'\b' + re.escape(kw.lower()) + r'\b'
+        if re.search(pattern, lower_answer):
+            matched.append(kw)
+        else:
+            missed.append(kw)
     return matched, missed
 
 
@@ -119,15 +126,21 @@ async def evaluate_answer(request: EvaluateAnswerRequest):
     kw_cov = (len(matched_kws) / len(keywords) * 100) if keywords else semantic_score
 
     # ── Derived scores ───────────────────────────────────────────────────────
-    factual_score      = min(100, round(kw_cov * 0.6 + semantic_score * 0.4))
+    factual_score      = min(100, round(kw_cov * 0.7 + semantic_score * 0.3))
     user_len           = len(request.user_answer.split())
     exp_len            = len(request.expected_answer.split())
-    length_ratio       = min(1.0, user_len / max(exp_len, 1))
-    completeness_score = min(100, round(kw_cov * 0.5 + length_ratio * 50))
+    
+    # Penalize extremely short answers more aggressively
+    length_penalty = 1.0
+    if user_len < 10: length_penalty = 0.5
+    elif user_len < exp_len * 0.3: length_penalty = 0.7
+    
+    completeness_score = min(100, round((kw_cov * 0.6 + semantic_score * 0.4) * length_penalty))
     clarity_score      = min(100, round(analyze_clarity(request.user_answer)))
+    
     overall_score      = round(
-        semantic_score * 0.40 +
-        factual_score  * 0.30 +
+        semantic_score * 0.35 +
+        factual_score  * 0.35 +
         completeness_score * 0.20 +
         clarity_score  * 0.10
     )

@@ -72,6 +72,39 @@ QUESTION_BANK = {
                 {"text": "Explain the KMP (Knuth-Morris-Pratt) algorithm.", "keywords": ["string matching", "prefix function", "O(n+m)"], "expected": "Efficient string matching algorithm that avoids re-checking characters by using a prefix table."},
             ],
         },
+            ],
+        },
+        "cloud-computing": {
+            "medium": [
+                {"text": "What is the difference between IaaS, PaaS, and SaaS?", "keywords": ["infrastructure", "platform", "software", "management", "abstraction"], "expected": "IaaS provides raw compute/storage. PaaS provides a platform for development. SaaS is ready-to-use software delivered over the internet."},
+                {"text": "Explain the concept of Serverless computing and its benefits.", "keywords": ["lambda", "scaling", "stateless", "cost-efficiency", "event-driven"], "expected": "Serverless allows running code without managing servers. It scales automatically and you only pay for execution time."},
+            ],
+            "hard": [
+                {"text": "Design a multi-region highly available architecture on AWS/Azure.", "keywords": ["load balancer", "replication", "failover", "latency", "availability zone"], "expected": "Use global load balancers, multi-region database replication, and route traffic based on health checks/latency."},
+            ]
+        },
+        "databases": {
+            "medium": [
+                {"text": "Explain the differences between SQL and NoSQL databases.", "keywords": ["relational", "schema", "scaling", "ACID", "BASE"], "expected": "SQL is relational with fixed schemas and ACID compliance. NoSQL is non-relational, flexible, and often scales horizontally (BASE)."},
+                {"text": "What are database indexes and how do they improve performance?", "keywords": ["B-tree", "lookup", "scan", "overhead", "write performance"], "expected": "Indexes are data structures (like B-trees) that allow the database to find rows faster without scanning the entire table. However, they add overhead to writes."},
+            ],
+            "hard": [
+                {"text": "Explain Database Transaction Isolation Levels and the problems they solve.", "keywords": ["read committed", "repeatable read", "serializable", "dirty read", "phantom read"], "expected": "Isolation levels (Read Uncommitted, Read Committed, Repeatable Read, Serializable) control how transactions see each other's changes, preventing issues like dirty reads and phantom reads."},
+            ]
+        },
+        "python": {
+            "easy": [
+                {"text": "What is the difference between a list and a tuple in Python?", "keywords": ["mutable", "immutable", "performance", "parentheses", "brackets"], "expected": "Lists are mutable (changeable) and use []. Tuples are immutable and use (). Tuples are generally faster."},
+                {"text": "How does memory management work in Python?", "keywords": ["garbage collection", "reference counting", "heap", "private", "management"], "expected": "Python uses automatic memory management with reference counting and a cycle-detecting garbage collector."},
+            ],
+            "medium": [
+                {"text": "What are Python Decorators and how do they work?", "keywords": ["wrapper", "function", "closure", "meta-programming"], "expected": "Decorators are functions that wrap other functions to modify their behavior without changing the source code."},
+                {"text": "Explain the difference between deep copy and shallow copy.", "keywords": ["copy", "deepcopy", "reference", "nested objects"], "expected": "Shallow copy creates a new object but references nested objects. Deep copy creates a new object and recursively copies all nested objects."},
+            ],
+            "hard": [
+                {"text": "Explain the Global Interpreter Lock (GIL) and its impact on multi-threading.", "keywords": ["GIL", "mutex", "concurrency", "parallelism", "multiprocessing"], "expected": "The GIL is a mutex that allows only one thread to execute Python bytecode at a time. It prevents true parallelism in CPU-bound multi-threaded tasks, often requiring multiprocessing instead."},
+            ]
+        },
         "system-design": {
             "medium": [
                 {"text": "Design a URL shortening service like bit.ly.", "keywords": ["base62", "hash", "database", "redirect", "analytics", "load balancer"], "expected": "Use base62 encoding, a NoSQL database for mappings, CDN for fast redirects, and analytics tracking."},
@@ -87,6 +120,37 @@ QUESTION_BANK = {
                 {"text": "Design a distributed message queue like Kafka.", "keywords": ["partitions", "offsets", "replication", "pub/sub", "log-structured"], "expected": "Use log-structured storage, partitioned topics for parallelism, and consumer groups with offsets."},
                 {"text": "Explain the design of a Content Delivery Network (CDN).", "keywords": ["edge servers", "latency", "caching", "DNS routing"], "expected": "Geographically distributed network of proxy servers that cache content closer to users to reduce latency."},
             ],
+        },
+        "cloud-computing": {
+            "medium": [
+                {"text": "What is the difference between IaaS, PaaS, and SaaS?", "keywords": ["infrastructure", "platform", "software", "management", "abstraction"], "expected": "IaaS provides raw compute/storage. PaaS provides a platform for development. SaaS is ready-to-use software delivered over the internet."},
+                {"text": "Explain the concept of Serverless computing and its benefits.", "keywords": ["lambda", "scaling", "stateless", "cost-efficiency", "event-driven"], "expected": "Serverless allows running code without managing servers. It scales automatically and you only pay for execution time."},
+            ],
+            "hard": [
+                {"text": "Design a multi-region highly available architecture on AWS/Azure.", "keywords": ["load balancer", "replication", "failover", "latency", "availability zone"], "expected": "Use global load balancers, multi-region database replication, and route traffic based on health checks/latency."},
+            ]
+        },
+        "databases": {
+            "medium": [
+                {"text": "Explain the differences between SQL and NoSQL databases.", "keywords": ["relational", "schema", "scaling", "ACID", "BASE"], "expected": "SQL is relational with fixed schemas and ACID compliance. NoSQL is non-relational, flexible, and often scales horizontally (BASE)."},
+                {"text": "What are database indexes and how do they improve performance?", "keywords": ["B-tree", "lookup", "scan", "overhead", "write performance"], "expected": "Indexes are data structures (like B-trees) that allow the database to find rows faster without scanning the entire table. However, they add overhead to writes."},
+            ],
+            "hard": [
+                {"text": "Explain Database Transaction Isolation Levels and the problems they solve.", "keywords": ["read committed", "repeatable read", "serializable", "dirty read", "phantom read"], "expected": "Isolation levels (Read Uncommitted, Read Committed, Repeatable Read, Serializable) control how transactions see each other's changes, preventing issues like dirty reads and phantom reads."},
+            ]
+        },
+        "python": {
+            "easy": [
+                {"text": "What is the difference between a list and a tuple in Python?", "keywords": ["mutable", "immutable", "performance", "parentheses", "brackets"], "expected": "Lists are mutable (changeable) and use []. Tuples are immutable and use (). Tuples are generally faster."},
+                {"text": "How does memory management work in Python?", "keywords": ["garbage collection", "reference counting", "heap", "private", "management"], "expected": "Python uses automatic memory management with reference counting and a cycle-detecting garbage collector."},
+            ],
+            "medium": [
+                {"text": "What are Python Decorators and how do they work?", "keywords": ["wrapper", "function", "closure", "meta-programming"], "expected": "Decorators are functions that wrap other functions to modify their behavior without changing the source code."},
+                {"text": "Explain the difference between deep copy and shallow copy.", "keywords": ["copy", "deepcopy", "reference", "nested objects"], "expected": "Shallow copy creates a new object but references nested objects. Deep copy creates a new object and recursively copies all nested objects."},
+            ],
+            "hard": [
+                {"text": "Explain the Global Interpreter Lock (GIL) and its impact on multi-threading.", "keywords": ["GIL", "mutex", "concurrency", "parallelism", "multiprocessing"], "expected": "The GIL is a mutex that allows only one thread to execute Python bytecode at a time. It prevents true parallelism in CPU-bound multi-threaded tasks, often requiring multiprocessing instead."},
+            ]
         },
         "javascript": {
             "easy": [

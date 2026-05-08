@@ -220,24 +220,30 @@ async def ai_evaluate_answer(
 
     kw_list = ", ".join(keywords[:10]) if keywords else "N/A"
     prompt = f"""
-You are evaluating a mock interview answer. Provide structured JSON feedback.
+You are a Senior Technical Interviewer at a FAANG company. Evaluate this candidate's answer with extreme technical rigor.
 
 QUESTION: {question}
-
+EXPECTED KEY CONCEPTS: {kw_list}
+IDEAL REFERENCE: {expected_answer}
 CANDIDATE'S ANSWER: {user_answer}
 
-IDEAL ANSWER CONCEPTS: {expected_answer}
+BASE SCORING METRICS (Use these as a starting point):
+{json.dumps(base_scores)}
 
-KEY CONCEPTS TO COVER: {kw_list}
+INSTRUCTIONS:
+1. CRITIQUE: Identify exactly what is missing. Is it a specific keyword? A trade-off? An edge case?
+2. ADJUST: Provide an 'adjusted_overall' score (0-100) based on technical depth.
+3. FEEDBACK: Write a 2-3 sentence professional evaluation. Mention specific technical strengths or gaps.
+4. SUGGESTIONS: Provide 2-3 concrete ways to make this a 'Staff-level' answer.
+5. PRO-TIP: Provide a 'Senior Interviewer's Pro-Tip' that would wow an interviewer for this specific topic.
 
-PRELIMINARY SCORES (out of 100): {json.dumps(base_scores)}
-
-Respond with ONLY valid JSON (no markdown, no extra text):
+Respond with ONLY valid JSON:
 {{
-  "feedback": "<2-3 sentence personalised feedback mentioning what was good and what to improve>",
-  "suggestions": ["<specific actionable tip 1>", "<tip 2>", "<tip 3>"],
-  "ai_tip": "<one expert insight the candidate should remember for future interviews>",
-  "adjusted_overall": <integer 0-100, your assessment of overall quality>
+  "feedback": "<Professional technical evaluation>",
+  "suggestions": ["<Specific improvement 1>", "<Specific improvement 2>"],
+  "ai_tip": "<Senior Interviewer's Pro-Tip>",
+  "adjusted_overall": <int 0-100>,
+  "technical_nuance_score": <int 0-100>
 }}
 """
     raw = await complete(prompt, SYSTEM_INTERVIEW_EXPERT, provider_override=provider, host_override=host, model_override=model, gemini_api_key_override=api_key)
