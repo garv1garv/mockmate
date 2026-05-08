@@ -148,8 +148,8 @@ async def generate_learning_path(request: LearningPathRequest):
         "priority_topics":   priority_topics[:10],
         "estimated_weeks":   weeks_needed,
         "total_study_hours": total_hours,
-        "phases":            phases,
-        "daily_schedule":    daily_schedule,
+        "phases":            ai_result.get("custom_phases") if ai_result and "custom_phases" in ai_result else phases,
+        "daily_schedule":    ai_result.get("custom_schedule") if ai_result and "custom_schedule" in ai_result else daily_schedule,
         "resources":         resources,
         "readiness_estimate": readiness,
         "milestones": [

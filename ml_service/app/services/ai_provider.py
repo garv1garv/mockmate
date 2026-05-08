@@ -335,6 +335,20 @@ Respond with ONLY valid JSON:
   ],
   "ai_weekly_tip": "<one non-obvious, highly effective study or interview strategy tip specific to the {target_role} role>",
   "priority_order": ["<highest impact skill 1>", "<skill 2>", "<skill 3>"],
+  "custom_phases": [
+    {{"phase": 1, "name": "<Creative Phase Name>", "topics": ["<topic1>", "<topic2>"], "goal": "<concrete outcome>"}},
+    {{"phase": 2, "name": "<Creative Phase Name>", "topics": ["<topic3>", "<topic4>"], "goal": "<concrete outcome>"}},
+    {{"phase": 3, "name": "<Creative Phase Name>", "topics": ["<topic5>", "<topic6>"], "goal": "<concrete outcome>"}}
+  ],
+  "custom_schedule": [
+    {{"day": "Monday", "focus": "<topic>", "activities": ["<act1>", "<act2>"]}},
+    {{"day": "Tuesday", "focus": "<topic>", "activities": ["<act1>", "<act2>"]}},
+    {{"day": "Wednesday", "focus": "<topic>", "activities": ["<act1>", "<act2>"]}},
+    {{"day": "Thursday", "focus": "<topic>", "activities": ["<act1>", "<act2>"]}},
+    {{"day": "Friday", "focus": "<topic>", "activities": ["<act1>", "<act2>"]}},
+    {{"day": "Saturday", "focus": "Projects & Labs", "activities": ["<act>"]}},
+    {{"day": "Sunday", "focus": "Review & Mock", "activities": ["<act>"]}}
+  ],
   "project_ideas": [
     {{"name": "<project name>", "description": "<2-sentence description of a unique project that demonstrates the missing skills>", "difficulty": "medium|hard"}}
   ],
