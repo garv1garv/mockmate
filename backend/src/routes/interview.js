@@ -208,6 +208,8 @@ function getFallbackQuestion(type, difficulty, category, previousQuestions = [])
         { text: 'What is the difference between == and ===?', expectedAnswer: '== performs type coercion before comparison, while === compares both value and type without coercion.', keywords: ['coercion', 'identity', 'equality', 'type'] },
         { text: 'Explain the box model in CSS.', expectedAnswer: 'The CSS box model consists of margins, borders, padding, and the actual content.', keywords: ['margin', 'border', 'padding', 'content'] },
         { text: 'What is the purpose of the Git clone command?', expectedAnswer: 'It creates a copy of a remote repository on your local machine.', keywords: ['copy', 'remote', 'local', 'repository'] },
+        { text: 'What is an HTML tag?', expectedAnswer: 'A markup element used to define the structure and content of a web page.', keywords: ['markup', 'structure', 'element', 'structure'] },
+        { text: 'What is the purpose of a Favicon?', expectedAnswer: 'A small icon associated with a website, displayed in browser tabs and bookmarks.', keywords: ['icon', 'tab', 'bookmark'] },
       ],
       medium: [
         { text: 'Explain the concept of closures in JavaScript with an example.', expectedAnswer: 'A closure is a function that has access to variables from its outer scope even after the outer function has returned.', keywords: ['scope', 'lexical environment', 'inner function'] },
@@ -216,6 +218,8 @@ function getFallbackQuestion(type, difficulty, category, previousQuestions = [])
         { text: 'What are React Hooks and why were they introduced?', expectedAnswer: 'Hooks allow using state and other React features in functional components without writing a class.', keywords: ['useState', 'useEffect', 'functional', 'classes'] },
         { text: 'Describe the Virtual DOM and its benefits.', expectedAnswer: 'A lightweight representation of the real DOM. It allows React to minimize expensive DOM operations by diffing.', keywords: ['representation', 'diffing', 'performance', 'updates'] },
         { text: 'Explain the difference between a process and a thread.', expectedAnswer: 'A process is an independent program execution with its own memory; a thread is a subset of a process that shares memory.', keywords: ['memory', 'execution', 'shared', 'concurrency'] },
+        { text: 'What is CORS and why is it important?', expectedAnswer: 'Cross-Origin Resource Sharing is a security feature that allows or restricts web resources from being requested from another domain.', keywords: ['security', 'domain', 'resource', 'sharing'] },
+        { text: 'Explain the concept of Middleware in Express.js.', expectedAnswer: 'Functions that have access to the request and response objects and can modify them or terminate the request-response cycle.', keywords: ['request', 'response', 'cycle', 'modify'] },
       ],
       hard: [
         { text: 'Design a distributed rate limiting system that works across multiple servers.', expectedAnswer: 'Use Redis with sliding window algorithm or token bucket algorithm with atomic operations.', keywords: ['Redis', 'distributed', 'atomic', 'consistency'] },
@@ -223,6 +227,7 @@ function getFallbackQuestion(type, difficulty, category, previousQuestions = [])
         { text: 'What is the Event Loop in JavaScript and how does it handle asynchronous operations?', expectedAnswer: 'The Event Loop constantly checks the call stack and task queue. It moves tasks from the queue to the stack when it is empty.', keywords: ['callback queue', 'call stack', 'microtasks', 'macrotasks'] },
         { text: 'How does Garbage Collection work in modern JavaScript engines like V8?', expectedAnswer: 'V8 uses a generational collector with "Mark-and-Sweep" for the old generation and "Scavenge" for the young generation.', keywords: ['mark-and-sweep', 'generational', 'memory leak', 'scavenge'] },
         { text: 'Explain the difference between optimistic and pessimistic locking.', expectedAnswer: 'Optimistic locking assumes conflicts are rare and checks at commit; pessimistic locking assumes conflicts are likely and locks early.', keywords: ['concurrency', 'transactions', 'conflict', 'database'] },
+        { text: 'What is a Microservices architecture and what are its trade-offs?', expectedAnswer: 'Breaking a system into small, independent services that communicate over a network. Benefits: scalability; Challenges: complexity, latency.', keywords: ['scalability', 'complexity', 'network', 'independent'] },
       ],
     },
     behavioral: {
@@ -231,17 +236,20 @@ function getFallbackQuestion(type, difficulty, category, previousQuestions = [])
         { text: 'Why do you want to work at this company?', expectedAnswer: 'Research-based answer showing alignment with company mission, culture, and opportunities.', keywords: ['research', 'culture', 'growth', 'mission'] },
         { text: 'What is your greatest strength as a developer?', expectedAnswer: 'Identifies a technical or soft skill with a concrete example of its impact.', keywords: ['strength', 'example', 'impact', 'skill'] },
         { text: 'Where do you see yourself in five years?', expectedAnswer: 'Shows ambition, career planning, and alignment with the potential growth path at the company.', keywords: ['ambition', 'growth', 'goals', 'future'] },
+        { text: 'How do you handle constructive criticism?', expectedAnswer: 'Demonstrates a growth mindset, openness to feedback, and ability to improve.', keywords: ['feedback', 'growth', 'improvement', 'listening'] },
       ],
       medium: [
         { text: 'Tell me about a challenging project you worked on and how you overcame the obstacles.', expectedAnswer: 'STAR format: Situation, Task, Action, Result with specific technical challenges and solutions.', keywords: ['STAR', 'challenge', 'solution', 'impact', 'teamwork'] },
         { text: 'Describe a time when you had to work with a difficult team member.', expectedAnswer: 'Demonstrates empathy, communication skills, conflict resolution, and professionalism.', keywords: ['communication', 'empathy', 'resolution', 'teamwork'] },
         { text: 'How do you handle tight deadlines or pressure?', expectedAnswer: 'Mentions prioritization, clear communication, focus, and maintaining quality under stress.', keywords: ['prioritization', 'communication', 'stress', 'quality'] },
         { text: 'Tell me about a time you made a mistake and how you handled it.', expectedAnswer: 'Shows accountability, learning, resolution, and honesty.', keywords: ['mistake', 'learning', 'accountability', 'resolution'] },
+        { text: 'How do you stay updated with the latest technology trends?', expectedAnswer: 'Mentions specific blogs, newsletters, side projects, or communities.', keywords: ['learning', 'trends', 'community', 'projects'] },
       ],
       hard: [
         { text: 'How have you influenced technical decision-making in a previous role without direct authority?', expectedAnswer: 'Shows leadership, influence, data-driven arguments, and stakeholder management skills.', keywords: ['influence', 'leadership', 'data-driven', 'stakeholders'] },
         { text: 'Describe a situation where you had to disagree with a supervisor. How did you handle it?', expectedAnswer: 'Demonstrates professionalism, data-driven dissent, and respect for hierarchy and team goals.', keywords: ['disagreement', 'professionalism', 'data', 'resolution'] },
         { text: 'Tell me about a time you had to learn a completely new technology under a very short deadline.', expectedAnswer: 'Shows rapid learning, resourcefulness, and ability to deliver under pressure.', keywords: ['learning', 'deadline', 'resourcefulness', 'delivery'] },
+        { text: 'Describe a situation where you had to lead a team through a period of change or uncertainty.', expectedAnswer: 'Shows resilience, leadership, communication, and ability to maintain morale.', keywords: ['leadership', 'resilience', 'change', 'morale'] },
       ],
     },
   };
