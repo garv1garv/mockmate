@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useSelector } from 'react-redux';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Brain, Clock, ChevronRight, Mic, MicOff, Code, MessageSquare, SkipForward, CheckCircle, AlertCircle, Lightbulb, Volume2, RotateCcw } from 'lucide-react';
 import { interviewAPI } from '../lib/api';
 import Sidebar from '../components/Sidebar';
+import toast from 'react-hot-toast';
 
 type Phase = 'setup' | 'interview' | 'results';
 
@@ -16,6 +18,7 @@ const PERSONAS = [
 export default function InterviewPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { user } = useSelector((s: any) => s.auth);
   const [phase, setPhase] = useState<Phase>('setup');
   const [config, setConfig] = useState<any>({ 
     type: searchParams.get('type') || 'technical', 
@@ -23,7 +26,8 @@ export default function InterviewPage() {
     mode: 'ai',
     category: 'general', 
     persona: 'neutral', 
-    company: '' 
+    company: '',
+    useResume: false
   });
   const [sessionId, setSessionId] = useState('');
   const [question, setQuestion] = useState<any>(null);
@@ -61,7 +65,10 @@ export default function InterviewPage() {
     try {
       setPreviousQuestions([]);
       setQuestionIndex(0);
-      const res = await interviewAPI.start(config) as any;
+      const res = await interviewAPI.start({
+        ...config,
+        resumeContext: config.useResume ? user?.profile?.resumeText : null
+      }) as any;
       const newSid = res.sessionId;
       setSessionId(newSid);
       setPhase('interview');
@@ -243,6 +250,28 @@ export default function InterviewPage() {
                   <option value="meta">Meta</option>
                   <option value="startup">Startup</option>
                 </select>
+              </div>
+
+              {/* Resume Context */}
+              <div className="form-group" style={{ marginBottom: 24 }}>
+                <div 
+                  onClick={() => {
+                    if (user?.profile?.resumeText) {
+                      setConfig({ ...config, useResume: !config.useResume });
+                    } else {
+                      toast.error('Please upload your resume in the Resume section first!');
+                    }
+                  }}
+                  style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px', borderRadius: 10, border: `1px solid ${config.useResume ? 'var(--accent-primary)' : 'var(--border)'}`, background: config.useResume ? 'rgba(99,102,241,0.05)' : 'transparent', cursor: 'pointer', transition: 'all 0.2s' }}
+                >
+                  <div style={{ width: 20, height: 20, borderRadius: 6, border: `2px solid ${config.useResume ? 'var(--accent-primary)' : 'var(--text-muted)'}`, background: config.useResume ? 'var(--accent-primary)' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {config.useResume && <CheckCircle size={12} color="white" />}
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: config.useResume ? 'var(--accent-primary)' : 'var(--text-primary)' }}>Base interview on my resume</div>
+                    <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>AI will ask questions about your specific experience and projects.</div>
+                  </div>
+                </div>
               </div>
 
               {/* Question Count */}

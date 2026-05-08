@@ -254,6 +254,7 @@ async def ai_generate_question(
     category: str,
     company: Optional[str] = None,
     job_description: Optional[str] = None,
+    resume_text: Optional[str] = None,
     previous_questions: list[str] = [],
     ai_settings: Optional[dict] = None,
 ) -> Optional[dict]:
@@ -269,6 +270,7 @@ async def ai_generate_question(
 
     logger.info("Generating question | Provider: %s | Host: %s | Model: %s", provider, host, model)
 
+    resume_context = f"\nRESUME CONTEXT:\n{resume_text}" if resume_text else ""
     # Add a random seed/twist to prevent AI repetitive patterns
     twists = [
         "Focus on real-world practical application.",

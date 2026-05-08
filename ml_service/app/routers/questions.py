@@ -17,6 +17,7 @@ class GenerateQuestionRequest(BaseModel):
     previous_questions: Optional[List[str]] = []
     company: Optional[str] = None
     job_description: Optional[str] = None
+    resume_text: Optional[str] = None
     ai_settings: Optional[Dict] = {}
 
 
@@ -198,13 +199,14 @@ async def generate_question(request: GenerateQuestionRequest):
 
     # ── Try AI generation first ──────────────────────────────────────────────
     ai_q = await ai_generate_question(
-        q_type=q_type,
-        difficulty=difficulty,
-        category=category,
-        company=company,
-        job_description=job_desc,
-        previous_questions=previous,
-        ai_settings=request.ai_settings,
+        q_type=request.type,
+        difficulty=request.difficulty,
+        category=request.category,
+        company=request.company,
+        job_description=request.job_description,
+        resume_text=request.resume_text,
+        previous_questions=request.previous_questions,
+        ai_settings=request.ai_settings
     )
 
     if ai_q:

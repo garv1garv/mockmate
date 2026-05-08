@@ -13,6 +13,7 @@ const interviewSessionSchema = new mongoose.Schema({
   targetRole: { type: String, default: 'Software Engineer' },
   company: { type: String, default: null },
   jobDescription: { type: String, default: null },
+  resumeContext: { type: String, default: null },
   interviewerPersona: {
     type: String,
     enum: ['friendly', 'challenging', 'neutral', 'skeptical'],

@@ -29,6 +29,11 @@ router.post('/upload', protect, upload.single('file'), async (req, res) => {
       timeout: 20000,
     });
 
+    // Save parsed text to user profile for future use (e.g., Resume-based Interview)
+    await User.findByIdAndUpdate(req.user._id, {
+      $set: { 'profile.resumeText': mlResponse.data.text }
+    });
+
     res.json({ success: true, text: mlResponse.data.text });
   } catch (error) {
     console.error('Proxy Upload Error:', error.message);

@@ -12,6 +12,7 @@ const userSchema = new mongoose.Schema({
     experience: { type: String, default: 'fresher' },
     skills: [String],
     resumeUrl: { type: String, default: null },
+    resumeText: { type: String, default: null },
     linkedinUrl: { type: String, default: null },
     githubUrl: { type: String, default: null },
   },
