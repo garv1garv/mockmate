@@ -294,45 +294,64 @@ export default function LearningPathPage() {
 }
 
 function getMockPath(role: string) {
+  const roleLower = role.toLowerCase();
+  
+  // Dynamic mock templates to prevent "samey" feel when AI is offline
+  const templates: any = {
+    "data scientist": {
+      note: "Focus on the transition from model training to production-grade ML systems (MLOps). Prioritize model observability and feature store management.",
+      skills: ["Statistics", "Pandas", "Scikit-learn", "MLOps", "SQL"],
+      practice: "Deploy a model as a scalable microservice with monitoring."
+    },
+    "frontend developer": {
+      note: "Master the complexities of modern state synchronization and performance optimization in large-scale React applications. Focus on Core Web Vitals.",
+      skills: ["React", "TypeScript", "Next.js", "State Management", "CSS Architecture"],
+      practice: "Optimize a high-traffic dashboard for sub-200ms TBT."
+    },
+    "devops engineer": {
+      note: "Shift from manual configuration to Immutable Infrastructure and GitOps. Focus on security-hardened CI/CD pipelines and Kubernetes cost-optimization.",
+      skills: ["Kubernetes", "Terraform", "Docker", "CI/CD", "Cloud Security"],
+      practice: "Automate a multi-region deployment with zero-downtime rollbacks."
+    },
+    "default": {
+      note: "Focus on transitioning from monolithic CRUD applications to event-driven microservices. Prioritize asynchronous communication patterns and distributed caching.",
+      skills: ["System Design", "Microservices", "Redis", "Message Queues", "Auth"],
+      practice: "Implement a distributed rate-limiter for a public API."
+    }
+  };
+
+  const template = templates[roleLower] || templates["default"];
+
   return {
     target_role: role, current_level: 'junior', estimated_weeks: 12, total_study_hours: 120,
     readiness_estimate: 35,
-    skill_gap: ['Data Structures', 'System Design', 'TypeScript', 'Docker', 'Redis', 'GraphQL'],
-    priority_topics: ['Data Structures', 'Algorithms', 'System Design', 'TypeScript', 'Docker', 'Redis'],
-    ai_roadmap_note: "Focus on transitioning from monolithic CRUD applications to event-driven microservices. Prioritize asynchronous communication patterns and distributed caching to handle high-concurrency scenarios effectively.",
+    skill_gap: template.skills,
+    priority_topics: template.skills,
+    ai_roadmap_note: template.note,
     weekly_breakdown: [
-      { week: 1, focus: "Advanced Data Structures", goal: "Master non-linear structures", key_concepts: ["Tries", "Graphs", "AVL Trees"], recommended_practice: "Implement a prefix-tree for autocomplete." },
-      { week: 2, focus: "System Design Patterns", goal: "Understand scalability", key_concepts: ["Sharding", "Replication", "Load Balancing"], recommended_practice: "Whiteboard a sharding strategy for a global chat app." },
-      { week: 3, focus: "Cloud Native Deployment", goal: "Docker & K8s basics", key_concepts: ["Containers", "Pod Orchestration", "Services"], recommended_practice: "Containerize a multi-service app and deploy to a local cluster." },
-      { week: 4, focus: "Security & Auth", goal: "Secure API design", key_concepts: ["OAuth2", "JWT", "RBAC"], recommended_practice: "Implement a zero-trust auth flow for a banking API." }
+      { week: 1, focus: template.skills[0], goal: "Master core concepts", key_concepts: [template.skills[0], "Best Practices"], recommended_practice: template.practice },
+      { week: 2, focus: template.skills[1], goal: "Practical implementation", key_concepts: [template.skills[1], "Edge cases"], recommended_practice: "Build a prototype using " + template.skills[1] },
+      { week: 3, focus: template.skills[2], goal: "Advanced optimization", key_concepts: [template.skills[2], "Scalability"], recommended_practice: "Refactor for high performance." },
+      { week: 4, focus: "Interview Preparation", goal: "Master behavioral and technical questions", key_concepts: ["System Design", "Problem Solving"], recommended_practice: "Complete 3 mock interviews." }
     ],
     ai_project_ideas: [
-      { name: "Distributed Task Scheduler", description: "Build a system that schedules and executes tasks across multiple nodes using a message queue.", stack: ["Node.js", "Redis", "RabbitMQ"], difficulty: "hard" },
-      { name: "Real-time Analytics Engine", description: "Implement a high-throughput pipeline for processing streaming event data with low latency.", stack: ["Python", "Kafka", "Elasticsearch"], difficulty: "hard" }
+      { name: role + " Capstone Project", description: "A complex system showcasing " + template.skills.join(", "), stack: template.skills.slice(0, 3), difficulty: "hard" }
     ],
     interviewer_perspective: [
-      { question: "How would you handle a sudden 10x spike in traffic?", what_they_look_for: "Mention of horizontal scaling, circuit breakers, and database connection pooling." },
-      { question: "Explain the CAP theorem trade-offs in your project.", what_they_look_for: "Understanding of Consistency vs Availability in partition-tolerant systems." }
-    ],
-    phases: [
-      { phase: 1, name: 'Foundation', duration_weeks: 3, goal: 'Build strong fundamentals', topics: ['Data Structures', 'Algorithms', 'Big-O Notation'] },
-      { phase: 2, name: 'Intermediate', duration_weeks: 5, goal: 'Apply to real problems', topics: ['System Design', 'Databases', 'APIs', 'TypeScript'] },
-      { phase: 3, name: 'Interview Ready', duration_weeks: 4, goal: 'Master advanced topics', topics: ['Mock Interviews', 'Behavioral', 'Company Research'] },
+      { question: "How would you scale this for 1M users?", what_they_look_for: "Mention of load balancing, caching, and horizontal scaling." }
     ],
     milestones: [
-      { week: 3, goal: 'Complete foundation modules', criteria: "Pass 5 hard-difficulty DSA assessments." },
-      { week: 6, goal: 'Solve 50 LeetCode problems', criteria: "Maintain a 100% pass rate on edge cases." },
-      { week: 9, goal: 'Complete 5 mock interviews', criteria: "Receive an 'Elite' rating for system design." },
-      { week: 12, goal: 'Interview ready!', criteria: "Successfully simulate a full technical on-site." },
+      { week: 3, goal: 'Complete foundation', criteria: "Pass 5 assessments." },
+      { week: 12, goal: 'Interview ready!', criteria: "Complete full simulation." }
     ],
     daily_schedule: [
-      { day: 'Monday', hours: 2, focus: 'DSA Practice' },
-      { day: 'Tuesday', hours: 2, focus: 'System Design' },
-      { day: 'Wednesday', hours: 2, focus: 'Coding Problems' },
-      { day: 'Thursday', hours: 2, focus: 'Behavioral Prep' },
-      { day: 'Friday', hours: 2, focus: 'Review & Notes' },
-      { day: 'Saturday', hours: 3, focus: 'Mock Interview' },
-      { day: 'Sunday', hours: 2, focus: 'Project Work' },
+      { day: 'Monday', hours: 2, focus: template.skills[0] },
+      { day: 'Tuesday', hours: 2, focus: template.skills[1] },
+      { day: 'Wednesday', hours: 2, focus: 'Review' },
+      { day: 'Thursday', hours: 2, focus: template.skills[2] },
+      { day: 'Friday', hours: 2, focus: 'Project' },
+      { day: 'Saturday', hours: 3, focus: 'Mock' },
+      { day: 'Sunday', hours: 2, focus: 'Notes' },
     ],
   };
 }
