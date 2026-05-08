@@ -35,10 +35,10 @@ router.post('/start', protect, async (req, res) => {
   }
 });
 
-// GET /api/interview/question
-router.get('/question', protect, async (req, res) => {
+// POST /api/interview/question
+router.post('/question', protect, async (req, res) => {
   try {
-    const { sessionId, type, difficulty, category, previousQuestions } = req.query;
+    const { sessionId, type, difficulty, category, previousQuestions } = req.body;
     
     // Call ML service for adaptive question generation
     let questionData;
@@ -60,7 +60,7 @@ router.get('/question', protect, async (req, res) => {
       questionData = mlResponse.data;
     } catch (mlError) {
       // Fallback to curated question bank
-      questionData = getFallbackQuestion(type, difficulty, category);
+      questionData = getFallbackQuestion(type, difficulty, category, previousQuestions);
     }
 
     res.json({ success: true, question: questionData });
@@ -198,7 +198,7 @@ router.get('/:sessionId', protect, async (req, res) => {
 });
 
 // Fallback question generator
-function getFallbackQuestion(type, difficulty, category) {
+function getFallbackQuestion(type, difficulty, category, previousQuestions = []) {
   const questions = {
     technical: {
       easy: [
@@ -231,7 +231,12 @@ function getFallbackQuestion(type, difficulty, category) {
 
   const typeQuestions = questions[type] || questions.technical;
   const difficultyQuestions = typeQuestions[difficulty] || typeQuestions.medium;
-  const q = difficultyQuestions[Math.floor(Math.random() * difficultyQuestions.length)];
+  
+  const prevSet = new Set(previousQuestions);
+  const available = difficultyQuestions.filter(q => !prevSet.has(q.text));
+  const finalPool = available.length > 0 ? available : difficultyQuestions;
+  
+  const q = finalPool[Math.floor(Math.random() * finalPool.length)];
 
   return {
     id: uuidv4(),

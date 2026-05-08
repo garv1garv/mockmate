@@ -52,6 +52,7 @@ export default function InterviewPage() {
 
   const startSession = async () => {
     try {
+      setPreviousQuestions([]);
       const res = await interviewAPI.start(config) as any;
       setSessionId(res.sessionId);
       setPhase('interview');
@@ -270,7 +271,7 @@ export default function InterviewPage() {
             </div>
 
             <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
-              <button className="btn btn-secondary" onClick={() => { setPhase('setup'); setSessionResults([]); setQuestionIndex(0); }}>
+              <button className="btn btn-secondary" onClick={() => { setPhase('setup'); setSessionResults([]); setQuestionIndex(0); setPreviousQuestions([]); }}>
                 <RotateCcw size={16} /> Try Again
               </button>
               <button className="btn btn-primary" onClick={() => navigate('/dashboard')}>

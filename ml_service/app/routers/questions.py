@@ -148,6 +148,9 @@ async def generate_question(request: GenerateQuestionRequest):
     company    = request.company
     job_desc   = request.job_description
     previous   = list(request.previous_questions or [])
+    print(f"DEBUG: Generating {q_type} ({difficulty}) question. Previous: {len(previous)}")
+    if previous:
+        print(f"DEBUG: Last previous question: {previous[-1][:50]}...")
 
     time_limits = {"easy": 120, "medium": 180, "hard": 300}
 

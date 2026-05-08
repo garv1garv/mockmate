@@ -34,7 +34,7 @@ export const authAPI = {
 
 export const interviewAPI = {
   start: (data: any) => API.post('/interview/start', data),
-  getQuestion: (params: any) => API.get('/interview/question', { params }),
+  getQuestion: (data: any) => API.post('/interview/question', data),
   evaluate: (data: any) => API.post('/interview/evaluate', data),
   complete: (data: any) => API.post('/interview/complete', data),
   getHistory: (params?: any) => API.get('/interview/history', { params }),
