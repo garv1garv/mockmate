@@ -64,7 +64,8 @@ export default function SettingsPage() {
     setIsSavingAI(true);
     try {
       await authAPI.updateAISettings(aiForm);
-      toast.success('AI Settings updated successfully! Please restart the backend for changes to take effect.');
+      await dispatch(getMe());
+      toast.success('AI Settings updated successfully');
     } catch (err: any) {
       toast.error(err.message || 'Failed to update AI settings');
     } finally {
@@ -158,33 +159,57 @@ export default function SettingsPage() {
                 <option value="ollama">Local AI (Ollama)</option>
                 <option value="gemini">Google Gemini</option>
               </select>
+              <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>
+                {aiForm.aiProvider === 'ollama' 
+                  ? 'Use your local Ollama instance for free, private inference.' 
+                  : 'Use Google Gemini for high-fidelity, high-speed interview simulation.'}
+              </p>
             </div>
 
-            <div className="form-group" style={{ marginBottom: 20 }}>
-              <label className="form-label">Ollama Base URL</label>
-              <input 
-                className="form-input" 
-                type="text" 
-                value={aiForm.ollamaHost} 
-                onChange={(e) => setAiForm({...aiForm, ollamaHost: e.target.value})} 
-                placeholder="http://127.0.0.1:11434"
-              />
-            </div>
+            {aiForm.aiProvider === 'ollama' ? (
+              <>
+                <div className="form-group" style={{ marginBottom: 20 }}>
+                  <label className="form-label">Ollama Base URL</label>
+                  <input 
+                    className="form-input" 
+                    type="text" 
+                    value={aiForm.ollamaHost} 
+                    onChange={(e) => setAiForm({...aiForm, ollamaHost: e.target.value})} 
+                    placeholder="http://127.0.0.1:11434"
+                  />
+                </div>
 
-            <div className="form-group" style={{ marginBottom: 32 }}>
-              <label className="form-label">Ollama Model Name</label>
-              <input 
-                className="form-input" 
-                type="text" 
-                value={aiForm.ollamaModel} 
-                onChange={(e) => setAiForm({...aiForm, ollamaModel: e.target.value})} 
-                placeholder="llama3"
-              />
-            </div>
+                <div className="form-group" style={{ marginBottom: 32 }}>
+                  <label className="form-label">Ollama Model Name</label>
+                  <input 
+                    className="form-input" 
+                    type="text" 
+                    value={aiForm.ollamaModel} 
+                    onChange={(e) => setAiForm({...aiForm, ollamaModel: e.target.value})} 
+                    placeholder="llama3"
+                  />
+                </div>
+              </>
+            ) : (
+              <div className="form-group" style={{ marginBottom: 32 }}>
+                <label className="form-label">Gemini API Key</label>
+                <input 
+                  className="form-input" 
+                  type="password" 
+                  value={aiForm.geminiApiKey} 
+                  onChange={(e) => setAiForm({...aiForm, geminiApiKey: e.target.value})} 
+                  placeholder="Enter your Google AI API key"
+                  style={{ fontFamily: 'monospace' }}
+                />
+                <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>
+                  Get your key from <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" style={{ color: 'var(--primary)' }}>Google AI Studio</a>
+                </p>
+              </div>
+            )}
 
             <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
               <button type="submit" className="btn btn-primary" style={{ background: '#8b5cf6', borderColor: '#8b5cf6' }} disabled={isSavingAI}>
-                {isSavingAI ? 'Saving...' : 'Save Ollama Settings'}
+                {isSavingAI ? 'Saving...' : <><Save size={16} /> Save AI Settings</>}
               </button>
             </div>
           </form>
