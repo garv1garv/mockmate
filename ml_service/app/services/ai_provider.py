@@ -273,8 +273,8 @@ You are a senior technical recruiter. Analyse this resume and provide personalis
 
 TARGET ROLE: {target_role}{jd_section}
 
-RESUME (first 1500 chars):
-{resume_text[:1500]}
+RESUME (first 8000 chars):
+{resume_text[:8000]}
 
 BASE ATS SCORE: {base_analysis.get('ats_score', 'N/A')}/100
 
@@ -389,8 +389,8 @@ async def ai_generate_cover_letter(
 Write a professional, compelling, and concise cover letter for the following role.
 TARGET ROLE: {target_role}{jd_section}
 
-CANDIDATE RESUME (first 1500 chars):
-{resume_text[:1500]}
+CANDIDATE RESUME (first 8000 chars):
+{resume_text[:8000]}
 
 The cover letter should:
 1. Have a professional greeting and opening.
