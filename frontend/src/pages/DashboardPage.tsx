@@ -17,13 +17,13 @@ export default function DashboardPage() {
 
   const data = analytics || getMockAnalytics();
 
-  const barData = [
-    { subject: 'DSA', score: 2 },
-    { subject: 'DBMS', score: 5 },
-    { subject: 'OOP', score: 24 },
-    { subject: 'OS', score: 2 },
-    { subject: 'CN', score: 3 },
-  ];
+  // Map category breakdown to BarChart format
+  const barData = (data.categoryBreakdown || mockCategories).map((c: any) => ({
+    subject: c.name === 'Data Structures' ? 'DSA' : c.name === 'System Design' ? 'SYS' : c.name === 'Behavioral' ? 'BEH' : c.name === 'Algorithms' ? 'ALG' : c.name === 'Databases' ? 'DBMS' : c.name.substring(0, 3).toUpperCase(),
+    score: c.score
+  }));
+
+  const sessions = data.recentSessions?.length ? data.recentSessions : mockSessions;
 
   return (
     <div className="app-layout">
@@ -82,18 +82,20 @@ export default function DashboardPage() {
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td style={{ padding: '16px 0', fontWeight: 600 }}>DSA</td>
-                <td style={{ padding: '16px 0' }}><span style={{ padding: '4px 8px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 4, fontSize: 12 }}>Hard</span></td>
-                <td style={{ padding: '16px 0', color: '#64748b' }}>Sun Mar 08 2026</td>
-                <td style={{ padding: '16px 0', textAlign: 'right' }}><button style={{ padding: '6px 12px', background: '#eff6ff', color: '#3b82f6', border: 'none', borderRadius: 4, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>View Report</button></td>
-              </tr>
-              <tr style={{ borderTop: '1px solid #f1f5f9' }}>
-                <td style={{ padding: '16px 0', fontWeight: 600 }}>DBMS</td>
-                <td style={{ padding: '16px 0' }}><span style={{ padding: '4px 8px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 4, fontSize: 12 }}>Easy</span></td>
-                <td style={{ padding: '16px 0', color: '#64748b' }}>Mon Mar 09 2026</td>
-                <td style={{ padding: '16px 0', textAlign: 'right' }}><button style={{ padding: '6px 12px', background: '#eff6ff', color: '#3b82f6', border: 'none', borderRadius: 4, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>View Report</button></td>
-              </tr>
+              {sessions.map((s: any, i: number) => (
+                <tr key={i} style={{ borderTop: i > 0 ? '1px solid #f1f5f9' : 'none' }}>
+                  <td style={{ padding: '16px 0', fontWeight: 600 }}>{s.type || 'Technical'}</td>
+                  <td style={{ padding: '16px 0' }}>
+                    <span style={{ padding: '4px 8px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 4, fontSize: 12 }}>
+                      {s.analytics?.averageScore > 80 ? 'Hard' : s.analytics?.averageScore > 60 ? 'Medium' : 'Easy'}
+                    </span>
+                  </td>
+                  <td style={{ padding: '16px 0', color: '#64748b' }}>{new Date().toDateString()}</td>
+                  <td style={{ padding: '16px 0', textAlign: 'right' }}>
+                    <button style={{ padding: '6px 12px', background: '#eff6ff', color: '#3b82f6', border: 'none', borderRadius: 4, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>View Report</button>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
@@ -103,8 +105,17 @@ export default function DashboardPage() {
 }
 
 const mockTrend = [
-  { score: 0 }, { score: 0 }, { score: 20 }, { score: 60 }, { score: 0 }, { score: 50 }, { score: 0 }, { score: 0 }, { score: 30 }, { score: 0 }
+  { score: 48 }, { score: 55 }, { score: 62 }, { score: 58 }, { score: 71 }, { score: 68 }, { score: 75 }, { score: 80 }, { score: 78 }, { score: 85 }
+];
+const mockCategories = [
+  { name: 'Data Structures', score: 78 }, { name: 'System Design', score: 62 },
+  { name: 'Behavioral', score: 85 }, { name: 'Algorithms', score: 70 }, { name: 'Databases', score: 55 },
+];
+const mockSessions = [
+  { type: 'Technical', analytics: { averageScore: 82, questionsAnswered: 8 } },
+  { type: 'Behavioral', analytics: { averageScore: 74, questionsAnswered: 6 } },
+  { type: 'System Design', analytics: { averageScore: 65, questionsAnswered: 4 } },
 ];
 function getMockAnalytics() {
-  return { totalSessions: 32, scoreTrend: mockTrend };
+  return { totalSessions: 12, scoreTrend: mockTrend, categoryBreakdown: mockCategories, recentSessions: mockSessions };
 }
