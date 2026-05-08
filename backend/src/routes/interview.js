@@ -38,7 +38,7 @@ router.post('/start', protect, async (req, res) => {
 // GET /api/interview/question
 router.get('/question', protect, async (req, res) => {
   try {
-    const { sessionId, type, difficulty, category } = req.query;
+    const { sessionId, type, difficulty, category, previousQuestions } = req.query;
     
     // Call ML service for adaptive question generation
     let questionData;
@@ -50,6 +50,7 @@ router.get('/question', protect, async (req, res) => {
         category: category || 'general',
         company: session?.company || null,
         job_description: session?.jobDescription || null,
+        previous_questions: previousQuestions || [],
         user_profile: {
           skills: req.user.profile?.skills || [],
           experience: req.user.profile?.experience || 'fresher',

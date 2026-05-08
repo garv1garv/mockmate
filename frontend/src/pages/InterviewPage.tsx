@@ -26,13 +26,15 @@ export default function InterviewPage() {
   const [isLoadingQ, setIsLoadingQ] = useState(false);
   const [isEvaluating, setIsEvaluating] = useState(false);
   const [questionIndex, setQuestionIndex] = useState(0);
+  const [totalQuestions, setTotalQuestions] = useState(10);
+  const [previousQuestions, setPreviousQuestions] = useState<string[]>([]);
   const [sessionResults, setSessionResults] = useState<any[]>([]);
   const [isListening, setIsListening] = useState(false);
   const [showHint, setShowHint] = useState(false);
   const timerRef = useRef<any>(null);
   const recognitionRef = useRef<any>(null);
 
-  const totalQuestions = 8;
+
 
   // Timer
   useEffect(() => {
@@ -67,11 +69,20 @@ export default function InterviewPage() {
     setEvaluation(null);
     setShowHint(false);
     try {
-      const res = await interviewAPI.getQuestion({ sessionId: sid || sessionId, type: config.type, difficulty: config.difficulty, category: config.category }) as any;
+      const res = await interviewAPI.getQuestion({ 
+        sessionId: sid || sessionId, 
+        type: config.type, 
+        difficulty: config.difficulty, 
+        category: config.category,
+        previousQuestions: previousQuestions
+      }) as any;
       setQuestion(res.question);
+      setPreviousQuestions(prev => [...prev, res.question?.text || '']);
       setTimeLeft(res.question?.timeLimit || 180);
     } catch {
-      setQuestion(getFallbackQuestion(config.type, config.difficulty, questionIndex));
+      const fallback = getFallbackQuestion(config.type, config.difficulty, questionIndex);
+      setQuestion(fallback);
+      setPreviousQuestions(prev => [...prev, fallback.text]);
       setTimeLeft(180);
     }
     setIsLoadingQ(false);
@@ -193,6 +204,18 @@ export default function InterviewPage() {
                   <option value="meta">Meta</option>
                   <option value="startup">Startup</option>
                 </select>
+              </div>
+
+              {/* Question Count */}
+              <div className="form-group">
+                <label className="form-label">Number of Questions</label>
+                <div style={{ display: 'flex', gap: 10 }}>
+                  {[5, 10, 15, 20].map((num) => (
+                    <button key={num} onClick={() => setTotalQuestions(num)} className="btn" style={{ flex: 1, padding: '10px', fontSize: 13, background: totalQuestions === num ? 'var(--gradient-primary)' : 'var(--bg-card)', color: totalQuestions === num ? 'white' : 'var(--text-secondary)', border: `1px solid ${totalQuestions === num ? 'transparent' : 'var(--border)'}` }}>
+                      {num}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               <button className="btn btn-primary" style={{ width: '100%', padding: 16, fontSize: 15 }} onClick={startSession}>
