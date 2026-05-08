@@ -178,65 +178,74 @@ export default function LearningPathPage() {
             </div>
 
             {/* Weekly Schedule */}
-            <div className="card" style={{ padding: 24, marginBottom: 24, background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%)', border: '1px solid rgba(99, 102, 241, 0.2)' }}>
-              <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
-                <div style={{ width: 48, height: 48, borderRadius: 12, background: 'var(--gradient-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <Zap size={24} color="white" />
-                </div>
-                <div>
-                  <h3 style={{ fontWeight: 800, fontSize: 18, marginBottom: 4 }}>Mentor's Strategic Roadmap</h3>
-                  <p style={{ color: 'var(--text-secondary)', fontSize: 14, lineHeight: 1.5 }}>{path.ai_roadmap_note}</p>
+            {path.ai_roadmap_note && (
+              <div className="card" style={{ padding: 24, marginBottom: 24, background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%)', border: '1px solid rgba(99, 102, 241, 0.2)' }}>
+                <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+                  <div style={{ width: 48, height: 48, borderRadius: 12, background: 'var(--gradient-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <Zap size={24} color="white" />
+                  </div>
+                  <div>
+                    <h3 style={{ fontWeight: 800, fontSize: 18, marginBottom: 4 }}>Mentor's Strategic Roadmap</h3>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: 14, lineHeight: 1.5 }}>{path.ai_roadmap_note}</p>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
-            <div className="grid-2" style={{ marginBottom: 28 }}>
-              {/* Weekly Breakdown */}
-              <div className="card" style={{ padding: 24 }}>
-                <h3 style={{ fontWeight: 700, marginBottom: 20 }}>Weekly Milestones</h3>
-                <div className="timeline">
-                  {path.weekly_breakdown?.map((week: any, i: number) => (
-                    <div key={i} style={{ position: 'relative', paddingLeft: 24, paddingBottom: 24, borderLeft: '2px solid var(--border)' }}>
-                      <div style={{ position: 'absolute', left: -7, top: 0, width: 12, height: 12, borderRadius: '50%', background: 'var(--accent-primary)' }} />
-                      <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 4 }}>Week {week.week}: {week.focus}</div>
-                      <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 8 }}>{week.goal}</p>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                        {week.key_concepts?.map((c: string) => <span key={c} className="chip" style={{ fontSize: 10, background: 'rgba(255,255,255,0.05)' }}>{c}</span>)}
+            {(path.weekly_breakdown || path.ai_project_ideas) && (
+              <div className="grid-2" style={{ marginBottom: 28 }}>
+                {/* Weekly Breakdown */}
+                {path.weekly_breakdown && (
+                  <div className="card" style={{ padding: 24 }}>
+                    <h3 style={{ fontWeight: 700, marginBottom: 20 }}>Weekly Milestones</h3>
+                    <div className="timeline">
+                      {path.weekly_breakdown.map((week: any, i: number) => (
+                        <div key={i} style={{ position: 'relative', paddingLeft: 24, paddingBottom: 24, borderLeft: '2px solid var(--border)' }}>
+                          <div style={{ position: 'absolute', left: -7, top: 0, width: 12, height: 12, borderRadius: '50%', background: 'var(--accent-primary)' }} />
+                          <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 4 }}>Week {week.week}: {week.focus}</div>
+                          <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 8 }}>{week.goal}</p>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                            {week.key_concepts?.map((c: string) => <span key={c} className="chip" style={{ fontSize: 10, background: 'rgba(255,255,255,0.05)' }}>{c}</span>)}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Project Blueprints */}
+                {path.ai_project_ideas && (
+                  <div className="card" style={{ padding: 24 }}>
+                    <h3 style={{ fontWeight: 700, marginBottom: 20 }}>Capstone Projects</h3>
+                    {path.ai_project_ideas.map((project: any, i: number) => (
+                      <div key={i} className="stat-card" style={{ marginBottom: 16, border: '1px solid var(--border)', background: 'rgba(255,255,255,0.02)' }}>
+                        <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 8, color: 'var(--accent-primary)' }}>{project.name}</div>
+                        <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 12 }}>{project.description}</p>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                          {project.stack?.map((s: string) => <span key={s} style={{ fontSize: 10, color: 'var(--text-muted)' }}>#{s}</span>)}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {path.interviewer_perspective && (
+              <div className="card" style={{ padding: 24, marginBottom: 24 }}>
+                <h3 style={{ fontWeight: 700, marginBottom: 20 }}>The Interviewer's Perspective</h3>
+                <div className="grid-2" style={{ gap: 20 }}>
+                  {path.interviewer_perspective.map((item: any, i: number) => (
+                    <div key={i} style={{ padding: 16, borderRadius: 12, background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border)' }}>
+                      <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 8, color: 'var(--text-primary)' }}>Q: {item.question}</div>
+                      <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontStyle: 'italic' }}>
+                        <strong>What they look for:</strong> {item.what_they_look_for}
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
-
-              {/* Project Blueprints */}
-              <div className="card" style={{ padding: 24 }}>
-                <h3 style={{ fontWeight: 700, marginBottom: 20 }}>Capstone Projects</h3>
-                {path.ai_project_ideas?.map((project: any, i: number) => (
-                  <div key={i} className="stat-card" style={{ marginBottom: 16, border: '1px solid var(--border)', background: 'rgba(255,255,255,0.02)' }}>
-                    <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 8, color: 'var(--accent-primary)' }}>{project.name}</div>
-                    <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 12 }}>{project.description}</p>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                      {project.stack?.map((s: string) => <span key={s} style={{ fontSize: 10, color: 'var(--text-muted)' }}>#{s}</span>)}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Interviewer Perspective */}
-            <div className="card" style={{ padding: 24, marginBottom: 24 }}>
-              <h3 style={{ fontWeight: 700, marginBottom: 20 }}>The Interviewer's Perspective</h3>
-              <div className="grid-2" style={{ gap: 20 }}>
-                {path.interviewer_perspective?.map((item: any, i: number) => (
-                  <div key={i} style={{ padding: 16, borderRadius: 12, background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border)' }}>
-                    <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 8, color: 'var(--text-primary)' }}>Q: {item.question}</div>
-                    <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontStyle: 'italic' }}>
-                      <strong>What they look for:</strong> {item.what_they_look_for}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            )}
 
             <div className="card" style={{ padding: 24, marginBottom: 24 }}>
               <h3 style={{ fontWeight: 700, marginBottom: 20 }}>📅 Weekly Study Schedule</h3>
@@ -269,6 +278,21 @@ function getMockPath(role: string) {
     readiness_estimate: 35,
     skill_gap: ['Data Structures', 'System Design', 'TypeScript', 'Docker', 'Redis', 'GraphQL'],
     priority_topics: ['Data Structures', 'Algorithms', 'System Design', 'TypeScript', 'Docker', 'Redis'],
+    ai_roadmap_note: "Focus on transitioning from monolithic CRUD applications to event-driven microservices. Prioritize asynchronous communication patterns and distributed caching to handle high-concurrency scenarios effectively.",
+    weekly_breakdown: [
+      { week: 1, focus: "Advanced Data Structures", goal: "Master non-linear structures", key_concepts: ["Tries", "Graphs", "AVL Trees"] },
+      { week: 2, focus: "System Design Patterns", goal: "Understand scalability", key_concepts: ["Sharding", "Replication", "Load Balancing"] },
+      { week: 3, focus: "Cloud Native Deployment", goal: "Docker & K8s basics", key_concepts: ["Containers", "Pod Orchestration", "Services"] },
+      { week: 4, focus: "Security & Auth", goal: "Secure API design", key_concepts: ["OAuth2", "JWT", "RBAC"] }
+    ],
+    ai_project_ideas: [
+      { name: "Distributed Task Scheduler", description: "Build a system that schedules and executes tasks across multiple nodes using a message queue.", stack: ["Node.js", "Redis", "RabbitMQ"], difficulty: "hard" },
+      { name: "Real-time Analytics Engine", description: "Implement a high-throughput pipeline for processing streaming event data with low latency.", stack: ["Python", "Kafka", "Elasticsearch"], difficulty: "hard" }
+    ],
+    interviewer_perspective: [
+      { question: "How would you handle a sudden 10x spike in traffic?", what_they_look_for: "Mention of horizontal scaling, circuit breakers, and database connection pooling." },
+      { question: "Explain the CAP theorem trade-offs in your project.", what_they_look_for: "Understanding of Consistency vs Availability in partition-tolerant systems." }
+    ],
     phases: [
       { phase: 1, name: 'Foundation', duration_weeks: 3, goal: 'Build strong fundamentals', topics: ['Data Structures', 'Algorithms', 'Big-O Notation'] },
       { phase: 2, name: 'Intermediate', duration_weeks: 5, goal: 'Apply to real problems', topics: ['System Design', 'Databases', 'APIs', 'TypeScript'] },
