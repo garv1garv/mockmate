@@ -3,6 +3,27 @@ import { useDropzone } from 'react-dropzone';
 import { FileText, Upload, Target, CheckCircle, AlertCircle, TrendingUp, Star, Zap, BookOpen } from 'lucide-react';
 import { resumeAPI } from '../lib/api';
 import Sidebar from '../components/Sidebar';
+import * as pdfjsLib from 'pdfjs-dist';
+
+// Set PDF.js worker
+pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+
+async function extractTextFromPdf(data: ArrayBuffer): Promise<string> {
+  try {
+    const pdf = await pdfjsLib.getDocument({ data }).promise;
+    let fullText = '';
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const textContent = await page.getTextContent();
+      const pageText = textContent.items.map((item: any) => item.str).join(' ');
+      fullText += pageText + '\n';
+    }
+    return fullText;
+  } catch (error) {
+    console.error('Error parsing PDF:', error);
+    return 'Error extracting text from PDF. Please try pasting the text manually.';
+  }
+}
 
 export default function ResumePage() {
   const [resumeText, setResumeText] = useState('');
@@ -19,9 +40,22 @@ export default function ResumePage() {
     const file = files[0];
     if (!file) return;
     setFileName(file.name);
-    const reader = new FileReader();
-    reader.onload = (e) => setResumeText(e.target?.result as string || '');
-    reader.readAsText(file);
+
+    if (file.type === 'application/pdf') {
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const arrayBuffer = e.target?.result as ArrayBuffer;
+        if (arrayBuffer) {
+          const text = await extractTextFromPdf(arrayBuffer);
+          setResumeText(text);
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    } else {
+      const reader = new FileReader();
+      reader.onload = (e) => setResumeText(e.target?.result as string || '');
+      reader.readAsText(file);
+    }
   }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, accept: { 'text/plain': ['.txt'], 'application/pdf': ['.pdf'] }, maxFiles: 1 });
