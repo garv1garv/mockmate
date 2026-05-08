@@ -229,23 +229,38 @@ async def ai_generate_question(
     Generate a fresh interview question using AI.
     Returns dict with: text, expected_answer, keywords, follow_up_questions.
     """
-    prev = "\n".join(f"- {q}" for q in previous_questions[-5:]) if previous_questions else "None"
+    # Add a random seed/twist to prevent AI repetitive patterns
+    twists = [
+        "Focus on real-world practical application.",
+        "Include a slight edge-case scenario.",
+        "Focus on modern best practices (2024+).",
+        "Explain the 'Why' behind the concept.",
+        "Compare this with an alternative approach."
+    ]
+    twist = random.choice(twists)
+    
+    prev = "\n".join(f"- {q}" for q in previous_questions[-10:]) if previous_questions else "None"
     company_ctx = f"targeting {company}" if company else "general tech interview"
     prompt = f"""
-Generate ONE unique interview question for a {company_ctx}.
+You are an expert technical interviewer. Generate a UNIQUE, high-quality interview question for a {company_ctx}.
 
-Type: {q_type}
-Difficulty: {difficulty}
-Category/Topic: {category}
-Already asked (DO NOT repeat these):
+TYPE: {q_type}
+DIFFICULTY: {difficulty}
+SPECIFIC CATEGORY: {category}
+JOB DESCRIPTION CONTEXT: {job_description or 'Software Engineer'}
+ALREADY ASKED (STRICTLY DO NOT REPEAT):
 {prev}
+
+INSTRUCTION: {twist}
+The question must be deeply related to {category}. Avoid generic questions like 'What is {category}'. 
+Instead, ask about a specific implementation detail, a trade-off, or a problem-solving scenario.
 
 Respond with ONLY valid JSON:
 {{
-  "text": "<the question>",
-  "expected_answer": "<ideal concise answer covering key points>",
-  "keywords": ["<keyword1>", "<keyword2>", "<keyword3>", "<keyword4>", "<keyword5>"],
-  "follow_up_questions": ["<follow-up 1>", "<follow-up 2>"]
+  "text": "<the question text>",
+  "expected_answer": "<a concise 2-3 sentence reference answer>",
+  "keywords": ["<key term 1>", "<key term 2>", "<key term 3>"],
+  "follow_up_questions": ["<follow up 1>", "<follow up 2>"]
 }}
 """
     raw = await complete(prompt, SYSTEM_INTERVIEW_EXPERT)
