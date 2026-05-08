@@ -280,6 +280,8 @@ BASE ATS SCORE: {base_analysis.get('ats_score', 'N/A')}/100
 
 Respond with ONLY valid JSON:
 {{
+  "ai_ats_score": <int 0-100 rating resume quality and ATS friendliness>,
+  "ai_jd_match_score": <int 0-100 rating match against job description, 0 if no JD>,
   "ai_summary": "<2-3 sentence executive summary of the candidate's profile>",
   "ai_suggestions": [
     {{"category": "<category>", "priority": "high|medium|low", "text": "<specific actionable suggestion>"}},

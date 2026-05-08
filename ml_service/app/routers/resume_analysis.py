@@ -176,6 +176,15 @@ async def analyze_resume(request: ResumeAnalysisRequest):
 
     # Merge AI suggestions on top of rule-based ones
     if ai_result:
+        # Override scores with true AI intelligence if provided
+        ai_ats = ai_result.get("ai_ats_score")
+        if isinstance(ai_ats, (int, float)):
+            ats_score = int(ai_ats)
+            
+        ai_jd = ai_result.get("ai_jd_match_score")
+        if isinstance(ai_jd, (int, float)) and request.job_description:
+            jd_match = int(ai_jd)
+
         ai_suggestions = ai_result.get("ai_suggestions") or []
         # Prepend high-priority AI suggestions
         high_ai = [s for s in ai_suggestions if s.get("priority") == "high"]
