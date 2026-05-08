@@ -313,29 +313,35 @@ async def ai_generate_learning_path(
     Use AI to personalise the learning path roadmap.
     Returns dict with: ai_roadmap_note, ai_resources, ai_weekly_tip.
     """
-    skills_str = ", ".join(current_skills[:10]) if current_skills else "None listed"
-    gaps_str = ", ".join(base_path.get("skill_gap", [])[:8]) or "None"
+    skills_str = ", ".join(current_skills[:15]) if current_skills else "None listed"
+    gaps_str = ", ".join(base_path.get("skill_gap", [])[:10]) or "None"
     prompt = f"""
-Create a personalised study roadmap for a job seeker.
+You are a world-class technical mentor. Create a high-fidelity, personalised study roadmap.
 
-Target Role: {target_role}
-Experience Level: {experience_level}
-Current Skills: {skills_str}
-Skill Gaps Identified: {gaps_str}
-Weak Topics: {", ".join(weak_topics) if weak_topics else "None"}
-Study Time Available: {hours_per_week} hours/week
-Estimated Weeks: {base_path.get('estimated_weeks', '?')}
+TARGET ROLE: {target_role}
+EXPERIENCE LEVEL: {experience_level}
+CURRENT SKILLS: {skills_str}
+IDENTIFIED GAPS: {gaps_str}
+WEAK TOPICS: {", ".join(weak_topics) if weak_topics else "None"}
+STUDY TIME: {hours_per_week} hours/week over {base_path.get('estimated_weeks', '8')} weeks
 
 Respond with ONLY valid JSON:
 {{
-  "ai_roadmap_note": "<2-3 sentence personalised roadmap overview and motivational advice>",
+  "ai_roadmap_note": "<A 3-sentence expert strategic overview. Avoid generic advice. Mention specific technologies or architectural patterns the candidate needs to master for this specific role.>",
   "ai_resources": [
-    {{"topic": "<topic>", "resource": "<specific book/course/platform>", "url": "<url if known else #>", "why": "<why this resource>"}},
-    {{"topic": "<topic>", "resource": "<specific book/course/platform>", "url": "<url if known else #>", "why": "<why this resource>"}},
-    {{"topic": "<topic>", "resource": "<specific book/course/platform>", "url": "<url if known else #>", "why": "<why this resource>"}}
+    {{"topic": "<topic name>", "resource": "<specific premium resource name>", "url": "<url>", "why": "<why this specific resource fits their current gap>"}},
+    {{"topic": "<topic name>", "resource": "<specific premium resource name>", "url": "<url>", "why": "<why this specific resource fits their current gap>"}},
+    {{"topic": "<topic name>", "resource": "<specific premium resource name>", "url": "<url>", "why": "<why this specific resource fits their current gap>"}}
   ],
-  "ai_weekly_tip": "<one specific weekly study strategy tip for this person>",
-  "priority_order": ["<skill gap 1 to tackle first>", "<skill gap 2>", "<skill gap 3>"]
+  "ai_weekly_tip": "<one non-obvious, highly effective study or interview strategy tip specific to the {target_role} role>",
+  "priority_order": ["<highest impact skill 1>", "<skill 2>", "<skill 3>"],
+  "project_ideas": [
+    {{"name": "<project name>", "description": "<2-sentence description of a unique project that demonstrates the missing skills>", "difficulty": "medium|hard"}}
+  ],
+  "weekly_breakdown": [
+    {{"week": 1, "focus": "<specific topic>", "goal": "<concrete outcome>"}},
+    {{"week": 2, "focus": "<specific topic>", "goal": "<concrete outcome>"}}
+  ]
 }}
 """
     raw = await complete(prompt, SYSTEM_INTERVIEW_EXPERT)

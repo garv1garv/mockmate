@@ -24,11 +24,41 @@ ROLE_REQUIREMENTS = {
         "devops": ["Linux", "Docker", "CI/CD", "Cloud (AWS/GCP)"],
         "soft": ["Communication", "Problem Solving", "Teamwork", "Git Workflow"],
     },
+    "frontend developer": {
+        "core": ["JavaScript Mastery", "React/Vue/Angular", "HTML5 Semantics", "CSS Grid/Flexbox", "TypeScript"],
+        "advanced": ["State Management (Redux/Zustand)", "Performance Optimization", "Web Vitals", "Next.js", "Module Bundlers"],
+        "testing": ["Jest", "React Testing Library", "Cypress"],
+        "ui/ux": ["Figma Basics", "Responsive Design", "Accessibility (a11y)"],
+        "soft": ["Visual Communication", "Empathy", "Attention to Detail"],
+    },
+    "backend developer": {
+        "core": ["Server-side Languages (Node/Go/Python)", "Database Design", "API Design (REST/GraphQL)", "Auth (JWT/OAuth)"],
+        "infrastructure": ["Microservices", "Message Queues (Kafka/RabbitMQ)", "Caching (Redis)", "Docker", "Kubernetes"],
+        "security": ["OWASP Top 10", "Data Encryption", "Rate Limiting"],
+        "monitoring": ["Logging", "APM Tools", "Unit/Integration Testing"],
+        "soft": ["Systems Thinking", "Technical Writing", "API Documentation"],
+    },
+    "fullstack developer": {
+        "core": ["MERN/T3 Stack", "Database Schema Design", "State Management", "API Integration", "Deployment"],
+        "concepts": ["Authentication", "End-to-End Testing", "Git Flow", "Agile Methodologies"],
+        "soft": ["Time Management", "Versatility", "Self-Teaching"],
+    },
+    "devops engineer": {
+        "core": ["Linux Administration", "Infrastructure as Code (Terraform/Ansible)", "CI/CD Pipelines", "Docker/K8s"],
+        "cloud": ["AWS/Azure/GCP", "Serverless", "Networking Fundamentals", "Identity Management"],
+        "monitoring": ["Prometheus", "Grafana", "ELK Stack", "SRE Principles"],
+        "soft": ["Automation Mindset", "On-call Communication", "Collaboration"],
+    },
     "data scientist": {
         "core": ["Statistics", "Machine Learning", "Python", "SQL", "Data Visualization"],
         "ml": ["scikit-learn", "TensorFlow/PyTorch", "Feature Engineering", "Model Evaluation"],
         "tools": ["Jupyter", "Pandas", "NumPy", "Matplotlib", "Apache Spark"],
         "soft": ["Business Communication", "Research Skills", "Experimentation"],
+    },
+    "ai engineer": {
+        "core": ["Deep Learning", "Natural Language Processing", "Computer Vision", "MLOps", "Vector Databases"],
+        "tools": ["LangChain", "OpenAI API", "HuggingFace", "PyTorch", "Docker for ML"],
+        "soft": ["Ethical AI", "Research Translation", "Continuous Learning"],
     },
     "product manager": {
         "core": ["Product Strategy", "User Research", "Data Analysis", "Roadmapping"],
@@ -133,6 +163,8 @@ async def generate_learning_path(request: LearningPathRequest):
             "ai_resources":     ai_result.get("ai_resources", []),
             "ai_weekly_tip":    ai_result.get("ai_weekly_tip"),
             "ai_priority_order": ai_result.get("priority_order", []),
+            "ai_project_ideas": ai_result.get("project_ideas", []),
+            "ai_weekly_breakdown": ai_result.get("weekly_breakdown", []),
             "ai_powered":       True,
         } if ai_result else {"ai_powered": False}),
     }
