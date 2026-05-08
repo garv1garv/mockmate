@@ -10,7 +10,6 @@ const NAV_ITEMS = [
   { icon: FileText, label: 'Resume', to: '/resume' },
   { icon: BookOpen, label: 'Learning Path', to: '/learning-path' },
   { icon: BarChart3, label: 'Analytics', to: '/analytics' },
-  { icon: Trophy, label: 'Leaderboard', to: '/leaderboard' },
 ];
 
 export default function Sidebar() {

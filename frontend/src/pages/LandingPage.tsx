@@ -11,18 +11,7 @@ const FEATURES = [
   { icon: Shield, title: 'Company-Specific Prep', desc: 'Tailored practice based on company culture, past questions database, and interview style intelligence.', color: '#ef4444' },
 ];
 
-const STATS = [
-  { value: '50K+', label: 'Mock Interviews' },
-  { value: '94%', label: 'User Satisfaction' },
-  { value: '3.2x', label: 'Offer Rate Boost' },
-  { value: '200+', label: 'Companies Covered' },
-];
 
-const TESTIMONIALS = [
-  { name: 'Priya Sharma', role: 'SDE at Google', text: 'MockMate helped me crack my Google interview in just 6 weeks. The adaptive AI questions and detailed feedback were game-changers.', rating: 5, avatar: 'PS' },
-  { name: 'Rohan Mehta', role: 'Software Engineer at Meta', text: 'The resume analyzer caught issues I never noticed. My ATS score jumped from 42 to 89, and I started getting callbacks immediately.', rating: 5, avatar: 'RM' },
-  { name: 'Aisha Khan', role: 'ML Engineer at Amazon', text: 'The behavioral question coaching with STAR format guidance completely transformed how I communicate in interviews.', rating: 5, avatar: 'AK' },
-];
 
 export default function LandingPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -95,7 +84,7 @@ export default function LandingPage() {
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <Link to="/login" className="btn btn-secondary btn-sm">Sign In</Link>
-          <Link to="/register" className="btn btn-primary btn-sm"><Sparkles size={14} /> Get Started Free</Link>
+          <Link to="/register" className="btn btn-primary btn-sm"><Sparkles size={14} /> Start Practicing</Link>
         </div>
       </nav>
 
@@ -125,7 +114,7 @@ export default function LandingPage() {
             </Link>
           </div>
           <div style={{ display: 'flex', gap: 24, justifyContent: 'center', marginTop: 40, flexWrap: 'wrap' }}>
-            {['No credit card required', '5 free sessions daily', 'Cancel anytime'].map((t) => (
+            {['Open Source', 'AI Powered', 'Educational'].map((t) => (
               <div key={t} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--text-secondary)' }}>
                 <CheckCircle size={14} color="var(--success)" /> {t}
               </div>
@@ -134,17 +123,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Stats */}
-      <section style={{ padding: '60px 32px', position: 'relative', zIndex: 1 }}>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 40, flexWrap: 'wrap' }}>
-          {STATS.map((s) => (
-            <div key={s.label} style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 40, fontWeight: 900, background: 'var(--gradient-primary)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{s.value}</div>
-              <div style={{ color: 'var(--text-secondary)', fontSize: 14, marginTop: 4 }}>{s.label}</div>
-            </div>
-          ))}
-        </div>
-      </section>
 
       {/* Features */}
       <section style={{ padding: '80px 32px', position: 'relative', zIndex: 1 }}>
@@ -192,41 +170,16 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section style={{ padding: '80px 32px', position: 'relative', zIndex: 1 }}>
-        <div className="container">
-          <h2 style={{ textAlign: 'center', fontSize: 36, fontWeight: 800, marginBottom: 60 }}>
-            From the <span className="gradient-text">Community</span>
-          </h2>
-          <div className="grid-3">
-            {TESTIMONIALS.map((t) => (
-              <div key={t.name} className="card" style={{ padding: 28 }}>
-                <div style={{ display: 'flex', gap: 4, marginBottom: 16 }}>
-                  {Array.from({ length: t.rating }).map((_, i) => <Star key={i} size={14} fill="var(--warning)" color="var(--warning)" />)}
-                </div>
-                <p style={{ color: 'var(--text-secondary)', fontSize: 14, lineHeight: 1.8, marginBottom: 20, fontStyle: 'italic' }}>"{t.text}"</p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'var(--gradient-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: 'white' }}>{t.avatar}</div>
-                  <div>
-                    <div style={{ fontWeight: 600, fontSize: 14 }}>{t.name}</div>
-                    <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t.role}</div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* CTA */}
       <section style={{ padding: '100px 32px', textAlign: 'center', position: 'relative', zIndex: 1 }}>
         <div style={{ maxWidth: 600, margin: '0 auto', padding: '60px 40px', background: '#FFFFFF', border: '1px solid var(--border)', borderRadius: 32, boxShadow: 'var(--shadow-card)' }}>
           <h2 style={{ fontSize: 40, fontWeight: 800, marginBottom: 16 }}>Ready to Land <span className="gradient-text">Your Dream Job?</span></h2>
-          <p style={{ color: 'var(--text-secondary)', marginBottom: 32, fontSize: 16 }}>Join 50,000+ engineers who used MockMate to get hired at top companies.</p>
+          <p style={{ color: 'var(--text-secondary)', marginBottom: 32, fontSize: 16 }}>Start practicing today with our open-source mock interview platform.</p>
           <Link to="/register" className="btn btn-primary btn-lg" style={{ marginBottom: 16 }}>
-            <Sparkles size={18} /> Start Free Today
+            <Sparkles size={18} /> Start Practicing
           </Link>
-          <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 16 }}>No credit card • Free 5 sessions/day • Cancel anytime</div>
+          <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 16 }}>Open-source educational platform</div>
         </div>
       </section>
 
