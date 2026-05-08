@@ -11,7 +11,7 @@ const ML_URL = process.env.ML_SERVICE_URL || 'http://localhost:8000';
 // POST /api/interview/start
 router.post('/start', protect, async (req, res) => {
   try {
-    const { type, difficulty, targetRole, company, persona, jobDescription } = req.body;
+    const { type, difficulty, targetRole, company, persona, jobDescription, mode } = req.body;
     const sessionId = uuidv4();
 
     const session = await InterviewSession.create({
@@ -19,6 +19,7 @@ router.post('/start', protect, async (req, res) => {
       sessionId,
       type: type || 'technical',
       difficulty: difficulty || 'medium',
+      mode: mode || 'ai',
       targetRole: targetRole || req.user.profile?.targetRole || 'Software Engineer',
       company: company || null,
       jobDescription: jobDescription || null,
@@ -44,29 +45,36 @@ router.post('/question', protect, async (req, res) => {
     let questionData;
     try {
       const session = await InterviewSession.findOne({ sessionId });
-      const mlResponse = await axios.post(`${ML_URL}/generate-question`, {
-        type: type || 'technical',
-        difficulty: difficulty || 'medium',
-        category: category || 'general',
-        company: session?.company || null,
-        job_description: session?.jobDescription || null,
-        previous_questions: previousQuestions || [],
-        user_profile: {
-          skills: req.user.profile?.skills || [],
-          experience: req.user.profile?.experience || 'fresher',
-          weak_topics: req.user.knowledgeGraph?.weakTopics || [],
-        },
-        ai_settings: {
-          provider: req.user.aiSettings?.provider || 'ollama',
-          ollamaHost: req.user.aiSettings?.ollamaHost || 'http://127.0.0.1:11434',
-          ollamaModel: req.user.aiSettings?.ollamaModel || 'llama3',
-          geminiModel: req.user.aiSettings?.geminiModel || 'gemini-1.5-flash',
-          geminiApiKey: req.user.aiSettings?.geminiApiKey || '',
-        },
-      }, { timeout: 10000 });
-      questionData = mlResponse.data;
-    } catch (mlError) {
-      // Fallback to curated question bank
+      const useAI = session?.mode === 'ai';
+
+      if (useAI) {
+        const mlResponse = await axios.post(`${ML_URL}/generate-question`, {
+          type: type || 'technical',
+          difficulty: difficulty || 'medium',
+          category: category || 'general',
+          company: session?.company || null,
+          job_description: session?.jobDescription || null,
+          previous_questions: previousQuestions || [],
+          user_profile: {
+            skills: req.user.profile?.skills || [],
+            experience: req.user.profile?.experience || 'fresher',
+            weak_topics: req.user.knowledgeGraph?.weakTopics || [],
+          },
+          ai_settings: {
+            provider: req.user.aiSettings?.provider || 'ollama',
+            ollamaHost: req.user.aiSettings?.ollamaHost || 'http://127.0.0.1:11434',
+            ollamaModel: req.user.aiSettings?.ollamaModel || 'llama3',
+            geminiModel: req.user.aiSettings?.geminiModel || 'gemini-1.5-flash',
+            geminiApiKey: req.user.aiSettings?.geminiApiKey || '',
+          },
+        }, { timeout: 10000 });
+        questionData = mlResponse.data;
+      } else {
+        // Classic mode
+        questionData = getFallbackQuestion(type, difficulty, category, previousQuestions);
+      }
+    } catch (error) {
+      console.error('Question generation error, falling back to local DB:', error.message);
       questionData = getFallbackQuestion(type, difficulty, category, previousQuestions);
     }
 

@@ -17,7 +17,14 @@ export default function InterviewPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [phase, setPhase] = useState<Phase>('setup');
-  const [config, setConfig] = useState({ type: searchParams.get('type') || 'technical', difficulty: 'medium', category: 'general', persona: 'neutral', company: '' });
+  const [config, setConfig] = useState<any>({ 
+    type: searchParams.get('type') || 'technical', 
+    difficulty: 'medium', 
+    mode: 'ai',
+    category: 'general', 
+    persona: 'neutral', 
+    company: '' 
+  });
   const [sessionId, setSessionId] = useState('');
   const [question, setQuestion] = useState<any>(null);
   const [answer, setAnswer] = useState('');
@@ -176,14 +183,39 @@ export default function InterviewPage() {
               </div>
 
               {/* Difficulty */}
-              <div className="form-group">
+              <div className="form-group" style={{ marginBottom: 24 }}>
                 <label className="form-label">Difficulty</label>
                 <div style={{ display: 'flex', gap: 10 }}>
                   {['easy', 'medium', 'hard'].map((d) => (
-                    <button key={d} onClick={() => setConfig({ ...config, difficulty: d })} className="btn" style={{ flex: 1, padding: '10px', fontSize: 13, background: config.difficulty === d ? 'var(--gradient-primary)' : 'var(--bg-card)', color: config.difficulty === d ? 'white' : 'var(--text-secondary)', border: `1px solid ${config.difficulty === d ? 'transparent' : 'var(--border)'}`, textTransform: 'capitalize' }}>
+                    <button key={d} onClick={() => setConfig({ ...config, difficulty: d })} className="btn" style={{ flex: 1, padding: '12px', fontSize: 13, background: config.difficulty === d ? 'var(--gradient-primary)' : 'var(--bg-card)', color: config.difficulty === d ? 'white' : 'var(--text-secondary)', border: `1px solid ${config.difficulty === d ? 'transparent' : 'var(--border)'}`, textTransform: 'capitalize' }}>
                       {d === 'easy' ? '🟢' : d === 'medium' ? '🟡' : '🔴'} {d}
                     </button>
                   ))}
+                </div>
+              </div>
+
+              {/* Mode Selection */}
+              <div className="form-group" style={{ marginBottom: 24 }}>
+                <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <Brain size={14} /> Interview Mode
+                </label>
+                <div style={{ display: 'flex', gap: 12 }}>
+                  <div 
+                    onClick={() => setConfig({ ...config, mode: 'ai' })} 
+                    style={{ flex: 1, padding: '16px', borderRadius: 12, border: `2px solid ${config.mode === 'ai' ? 'var(--accent-primary)' : 'var(--border)'}`, background: config.mode === 'ai' ? 'rgba(99,102,241,0.08)' : 'var(--bg-card)', cursor: 'pointer', transition: 'all 0.2s', position: 'relative' }}
+                  >
+                    {config.mode === 'ai' && <div style={{ position: 'absolute', top: 8, right: 8, background: 'var(--accent-primary)', color: 'white', borderRadius: '50%', width: 16, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10 }}>✓</div>}
+                    <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 4, color: config.mode === 'ai' ? 'var(--accent-primary)' : 'var(--text-primary)' }}>AI Mode</div>
+                    <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>Generative LLM questions & detailed AI analytics.</div>
+                  </div>
+                  <div 
+                    onClick={() => setConfig({ ...config, mode: 'classic' })} 
+                    style={{ flex: 1, padding: '16px', borderRadius: 12, border: `2px solid ${config.mode === 'classic' ? 'var(--accent-primary)' : 'var(--border)'}`, background: config.mode === 'classic' ? 'rgba(99,102,241,0.08)' : 'var(--bg-card)', cursor: 'pointer', transition: 'all 0.2s', position: 'relative' }}
+                  >
+                    {config.mode === 'classic' && <div style={{ position: 'absolute', top: 8, right: 8, background: 'var(--accent-primary)', color: 'white', borderRadius: '50%', width: 16, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10 }}>✓</div>}
+                    <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 4, color: config.mode === 'classic' ? 'var(--accent-primary)' : 'var(--text-primary)' }}>Classic Mode</div>
+                    <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>Curated questions from the platform database.</div>
+                  </div>
                 </div>
               </div>
 
