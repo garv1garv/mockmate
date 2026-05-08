@@ -183,12 +183,17 @@ export default function ResumePage() {
               <div style={{ animation: 'fadeIn 0.4s ease' }}>
                 {/* Score Overview */}
                 <div className="card" style={{ padding: 24, marginBottom: 20 }}>
+                  {analysis.ai_powered && (
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.3)', borderRadius: 20, padding: '4px 12px', marginBottom: 16, fontSize: 11, color: 'var(--accent-primary)', fontWeight: 600 }}>
+                      <Zap size={12} /> AI-Powered Analysis
+                    </div>
+                  )}
                   <h3 style={{ fontWeight: 700, marginBottom: 20 }}>Score Overview</h3>
                   <div style={{ display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
                     {[
                       { label: 'ATS Score', value: analysis.ats_score, icon: Target },
                       { label: 'Credibility', value: analysis.credibility_score, icon: Star },
-                      ...(analysis.jd_match !== null ? [{ label: 'JD Match', value: analysis.jd_match, icon: CheckCircle }] : []),
+                      ...(analysis.jd_match !== null && analysis.jd_match !== undefined ? [{ label: 'JD Match', value: analysis.jd_match, icon: CheckCircle }] : []),
                     ].map((s) => (
                       <div key={s.label} style={{ flex: 1, textAlign: 'center', padding: '16px 12px', background: 'rgba(255,255,255,0.03)', borderRadius: 12, border: `1px solid ${getScoreColor(s.value)}30` }}>
                         <div style={{ fontSize: 28, fontWeight: 800, color: getScoreColor(s.value), marginBottom: 4 }}>{s.value}%</div>
@@ -212,10 +217,44 @@ export default function ResumePage() {
                   ))}
                 </div>
 
+                {/* AI Summary */}
+                {analysis.ai_summary && (
+                  <div className="card" style={{ padding: 20, marginBottom: 20, borderLeft: '3px solid var(--accent-primary)' }}>
+                    <h3 style={{ fontWeight: 700, marginBottom: 10, fontSize: 15 }}>🤖 AI Summary</h3>
+                    <p style={{ fontSize: 14, lineHeight: 1.7, color: 'var(--text-secondary)' }}>{analysis.ai_summary}</p>
+                  </div>
+                )}
+
+                {/* Strengths */}
+                {analysis.strengths?.length > 0 && (
+                  <div className="card" style={{ padding: 20, marginBottom: 20 }}>
+                    <h3 style={{ fontWeight: 700, marginBottom: 12, fontSize: 15, color: 'var(--success)' }}>✅ Strengths</h3>
+                    {analysis.strengths.map((s: string, i: number) => (
+                      <div key={i} style={{ display: 'flex', gap: 8, fontSize: 13, color: 'var(--text-secondary)', marginBottom: 8 }}>
+                        <CheckCircle size={14} color="var(--success)" style={{ flexShrink: 0, marginTop: 2 }} />
+                        {s}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Missing Sections */}
+                {analysis.ai_missing_sections?.length > 0 && (
+                  <div className="card" style={{ padding: 20, marginBottom: 20, borderLeft: '3px solid var(--warning)' }}>
+                    <h3 style={{ fontWeight: 700, marginBottom: 12, fontSize: 15, color: 'var(--warning)' }}>📋 Missing Sections</h3>
+                    {analysis.ai_missing_sections.map((s: string, i: number) => (
+                      <div key={i} style={{ display: 'flex', gap: 8, fontSize: 13, color: 'var(--text-secondary)', marginBottom: 8 }}>
+                        <AlertCircle size={14} color="var(--warning)" style={{ flexShrink: 0, marginTop: 2 }} />
+                        {s}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
                 {/* Skills Found */}
                 {analysis.entities?.skills?.length > 0 && (
                   <div className="card" style={{ padding: 20, marginBottom: 20 }}>
-                    <h3 style={{ fontWeight: 700, marginBottom: 12, fontSize: 15 }}>🔧 Skills Detected ({analysis.entities.skills_count})</h3>
+                    <h3 style={{ fontWeight: 700, marginBottom: 12, fontSize: 15 }}>🔧 Skills Detected ({analysis.entities.skills_count || analysis.entities.skills.length})</h3>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                       {analysis.entities.skills.map((skill: string) => (
                         <span key={skill} className="chip">{skill}</span>

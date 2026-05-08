@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import json
 import os
+import random
 import re
 import logging
 from typing import Optional
@@ -285,7 +286,7 @@ async def ai_generate_question(
     company_ctx = f"targeting {company}" if company else "general tech interview"
     prompt = f"""
 You are an expert technical interviewer. Generate a UNIQUE, high-quality interview question for a {company_ctx}.
-
+{resume_context}
 TYPE: {q_type}
 DIFFICULTY: {difficulty}
 SPECIFIC CATEGORY: {category}
@@ -294,8 +295,8 @@ ALREADY ASKED (STRICTLY DO NOT REPEAT):
 {prev}
 
 INSTRUCTION: {twist}
-The question must be deeply related to {category}. Avoid generic questions like 'What is {category}'. 
-Instead, ask about a specific implementation detail, a trade-off, or a problem-solving scenario.
+{'If RESUME CONTEXT is provided above, generate a question that probes the candidates specific experience, projects, or claims from their resume. Be specific — reference technologies or achievements from the resume.' if resume_text else 'The question must be deeply related to ' + category + '.'}
+Avoid generic questions. Ask about a specific implementation detail, a trade-off, or a problem-solving scenario.
 
 Respond with ONLY valid JSON:
 {{

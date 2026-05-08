@@ -150,6 +150,7 @@ function generateFallbackResumeAnalysis(resumeText, jobDescription) {
     word_count: wordCount,
     entities: {
       skills: ['JavaScript', 'Python', 'React', 'Node.js'].filter(() => Math.random() > 0.5),
+      skills_count: 4,
       companies: [],
       education: [],
     },
@@ -157,11 +158,11 @@ function generateFallbackResumeAnalysis(resumeText, jobDescription) {
       ? ['Cloud Architecture', 'System Design', 'Leadership Experience']
       : [],
     suggestions: [
-      { category: 'Impact', text: 'Add quantified achievements (e.g., "Improved performance by 40%")' },
-      { category: 'Keywords', text: 'Include more industry-specific keywords from the job description' },
-      { category: 'Format', text: 'Use bullet points with strong action verbs for better ATS compatibility' },
-      { category: 'Projects', text: 'Add links to your GitHub projects and live demos' },
-      { category: 'Summary', text: 'Include a professional summary tailored to your target role' },
+      { category: 'Impact', priority: 'high', text: 'Add quantified achievements (e.g., "Improved performance by 40%")' },
+      { category: 'Keywords', priority: 'high', text: 'Include more industry-specific keywords from the job description' },
+      { category: 'Format', priority: 'medium', text: 'Use bullet points with strong action verbs for better ATS compatibility' },
+      { category: 'Projects', priority: 'medium', text: 'Add links to your GitHub projects and live demos' },
+      { category: 'Summary', priority: 'medium', text: 'Include a professional summary tailored to your target role' },
     ],
     strengths: [
       hasActionVerbs ? 'Good use of action verbs' : 'Structured presentation',

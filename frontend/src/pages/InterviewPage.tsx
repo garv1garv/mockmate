@@ -379,16 +379,20 @@ export default function InterviewPage() {
             {isLoadingQ ? (
               <div style={{ textAlign: 'center', padding: 40 }}>
                 <div className="spinner" style={{ width: 36, height: 36, border: '3px solid rgba(99,102,241,0.2)', borderTopColor: 'var(--accent-primary)', borderRadius: '50%', margin: '0 auto 16px' }} />
-                <p style={{ color: 'var(--text-secondary)' }}>AI is generating your question...</p>
+                <p style={{ color: 'var(--text-secondary)' }}>{config.mode === 'ai' ? 'AI is generating your question...' : 'Loading from question bank...'}</p>
               </div>
             ) : (
               <>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
-                  <div style={{ display: 'flex', gap: 8 }}>
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                     <span className={`badge badge-${config.difficulty === 'hard' ? 'danger' : config.difficulty === 'medium' ? 'warning' : 'success'}`}>
                       {config.difficulty}
                     </span>
                     <span className="badge badge-primary">{question?.category || config.type}</span>
+                    <span className="badge" style={{ background: config.mode === 'ai' ? 'rgba(139,92,246,0.15)' : 'rgba(16,185,129,0.15)', color: config.mode === 'ai' ? '#8b5cf6' : '#10b981', border: `1px solid ${config.mode === 'ai' ? 'rgba(139,92,246,0.3)' : 'rgba(16,185,129,0.3)'}` }}>
+                      {config.mode === 'ai' ? '🤖 AI' : '📚 Classic'}
+                    </span>
+                    {config.useResume && <span className="badge" style={{ background: 'rgba(6,182,212,0.15)', color: '#06b6d4', border: '1px solid rgba(6,182,212,0.3)' }}>📄 Resume</span>}
                   </div>
                   <button onClick={() => setShowHint(!showHint)} className="btn btn-secondary btn-sm">
                     <Lightbulb size={13} /> {showHint ? 'Hide Hint' : 'Hint'}
@@ -500,6 +504,21 @@ function getFallbackQuestion(type: string, difficulty: string, index: number) {
     { text: 'Tell me about a time you resolved a conflict within your team.', category: 'Behavioral', keywords: ['communication', 'empathy', 'resolution', 'compromise'], expected_answer: 'Use STAR format: describe the situation, conflicting parties, your mediation approach, and the positive resolution achieved.' },
     { text: 'How would you design a notification system for millions of users?', category: 'System Design', keywords: ['message queue', 'pub-sub', 'Kafka', 'push', 'scalability'], expected_answer: 'Use a message queue (Kafka/RabbitMQ) for pub-sub architecture, WebSockets for real-time push, with horizontal scaling and retry mechanisms.' },
     { text: 'What are SOLID principles in object-oriented design?', category: 'OOP', keywords: ['Single Responsibility', 'Open-Closed', 'Liskov', 'Interface', 'Dependency'], expected_answer: 'SOLID: Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation, Dependency Inversion — principles for maintainable OOP code.' },
+    { text: 'Explain the CAP theorem and its implications for distributed systems.', category: 'System Design', keywords: ['consistency', 'availability', 'partition tolerance', 'trade-offs'], expected_answer: 'CAP theorem states that a distributed system can only guarantee two of three: Consistency, Availability, and Partition Tolerance. Most systems choose AP or CP.' },
+    { text: 'What is the difference between TCP and UDP? When would you use each?', category: 'Networking', keywords: ['reliable', 'connectionless', 'streaming', 'latency'], expected_answer: 'TCP is reliable and connection-oriented (HTTP, file transfer). UDP is fast and connectionless (video streaming, gaming, DNS).' },
+    { text: 'Explain the event loop in JavaScript and how asynchronous code executes.', category: 'JavaScript', keywords: ['call stack', 'callback queue', 'microtask', 'non-blocking'], expected_answer: 'JS is single-threaded. The event loop processes the call stack, then microtasks (Promises), then macrotasks (setTimeout). This enables non-blocking I/O.' },
+    { text: 'What is database normalization? Explain up to 3NF with examples.', category: 'Databases', keywords: ['1NF', '2NF', '3NF', 'redundancy', 'functional dependency'], expected_answer: '1NF: atomic values. 2NF: no partial dependencies. 3NF: no transitive dependencies. Normalization reduces redundancy but may increase JOIN complexity.' },
+    { text: 'How would you detect and resolve a deadlock in a concurrent system?', category: 'OS', keywords: ['mutual exclusion', 'hold and wait', 'circular wait', 'resource ordering'], expected_answer: 'Deadlocks require 4 conditions. Prevention strategies: resource ordering, timeouts, lock hierarchy. Detection: wait-for graphs. Resolution: process termination or rollback.' },
+    { text: 'Describe the differences between REST and GraphQL APIs.', category: 'Web', keywords: ['over-fetching', 'schema', 'resolver', 'endpoint'], expected_answer: 'REST uses multiple endpoints with fixed responses. GraphQL uses a single endpoint with client-specified queries, reducing over/under-fetching.' },
+    { text: 'Explain how a hash map handles collisions and achieves O(1) average lookup.', category: 'Data Structures', keywords: ['chaining', 'open addressing', 'load factor', 'rehashing'], expected_answer: 'Hash maps use a hash function to map keys to buckets. Collisions are resolved via chaining (linked lists) or open addressing (probing). Load factor triggers rehashing.' },
+    { text: 'Walk me through designing an LRU Cache from scratch.', category: 'Data Structures', keywords: ['doubly linked list', 'hashmap', 'O(1)', 'eviction'], expected_answer: 'Combine a HashMap (key → node) with a Doubly Linked List (order). get/put are O(1). On capacity overflow, evict the tail node (least recently used).' },
+    { text: 'Describe a time you had to learn a new technology quickly under pressure.', category: 'Behavioral', keywords: ['adaptability', 'learning', 'time management', 'growth mindset'], expected_answer: 'STAR: Situation with tight deadline, Task requiring new tech, Action steps taken to learn quickly, Result achieved successfully.' },
+    { text: 'What are indexes in databases and how do they improve query performance?', category: 'Databases', keywords: ['B-tree', 'clustered', 'non-clustered', 'query optimizer'], expected_answer: 'Indexes are B-tree/hash structures that allow O(log n) lookups instead of O(n) scans. Trade-off: faster reads but slower writes and extra storage.' },
+    { text: 'Explain the concept of Virtual Memory and how paging works.', category: 'OS', keywords: ['page table', 'page fault', 'swap', 'TLB'], expected_answer: 'Virtual memory maps logical addresses to physical via page tables. When a page isn\'t in RAM, a page fault triggers loading from disk. TLB caches translations.' },
+    { text: 'How would you design a URL shortener like bit.ly?', category: 'System Design', keywords: ['base62', 'hashing', 'database', 'redirection', 'analytics'], expected_answer: 'Generate short codes via base62 encoding of auto-increment IDs or hash. Store in DB (short → long URL). 301/302 redirect. Add caching (Redis) for hot URLs.' },
+    { text: 'What is the difference between var, let, and const in JavaScript?', category: 'JavaScript', keywords: ['hoisting', 'block scope', 'function scope', 'temporal dead zone'], expected_answer: 'var is function-scoped and hoisted. let is block-scoped, not hoisted to use before declaration. const is block-scoped and cannot be reassigned.' },
+    { text: 'Explain the Observer and Strategy design patterns with use cases.', category: 'OOP', keywords: ['publish-subscribe', 'decoupling', 'runtime behavior', 'interfaces'], expected_answer: 'Observer: one-to-many notification (event systems). Strategy: swap algorithms at runtime via interfaces (sorting strategies, payment methods).' },
+    { text: 'How does HTTPS work? Explain the TLS handshake process.', category: 'Networking', keywords: ['TLS', 'certificate', 'asymmetric', 'symmetric', 'handshake'], expected_answer: 'Client sends hello → server sends certificate → client verifies CA → they exchange keys via asymmetric encryption → switch to symmetric for fast data transfer.' },
   ];
   return questions[index % questions.length];
 }
