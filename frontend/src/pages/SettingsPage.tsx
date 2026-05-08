@@ -29,6 +29,11 @@ export default function SettingsPage() {
         name: user.name || '',
         targetRole: user.profile?.targetRole || 'Software Engineer',
       });
+      setAiForm({
+        aiProvider: user.aiSettings?.provider || 'ollama',
+        ollamaHost: user.aiSettings?.ollamaHost || 'http://127.0.0.1:11434',
+        ollamaModel: user.aiSettings?.ollamaModel || 'llama3',
+      });
     }
   }, [user]);
 

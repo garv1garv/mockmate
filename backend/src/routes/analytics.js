@@ -9,69 +9,76 @@ router.get('/dashboard', protect, async (req, res) => {
   try {
     const userId = req.user._id;
 
-    const sessions = await InterviewSession.find({
-      userId,
-      status: 'completed',
-    }).sort({ createdAt: -1 }).limit(30);
+    const allSessions = await InterviewSession.find({ userId, status: 'completed' }).sort({ createdAt: -1 });
+    const totalSessions = allSessions.length;
+    
+    if (totalSessions === 0) {
+      return res.json({
+        success: true,
+        analytics: {
+          totalSessions: 0,
+          avgScore: 0,
+          streak: 0,
+          readinessScore: 0,
+          scoreTrend: [],
+          categoryBreakdown: [],
+          recentSessions: [],
+          isNewUser: true
+        }
+      });
+    }
 
-    const totalSessions = sessions.length;
-    const avgScore = totalSessions
-      ? Math.round(sessions.reduce((sum, s) => sum + (s.analytics?.averageScore || 0), 0) / totalSessions)
-      : 0;
-
-    // Weekly performance
-    const lastWeekSessions = sessions.filter(s => {
-      const weekAgo = new Date();
-      weekAgo.setDate(weekAgo.getDate() - 7);
-      return new Date(s.createdAt) > weekAgo;
-    });
+    const avgScore = Math.round(allSessions.reduce((sum, s) => sum + (s.analytics?.averageScore || 0), 0) / totalSessions);
 
     // Score trend (last 10 sessions)
-    const scoreTrend = sessions.slice(0, 10).reverse().map((s, i) => ({
+    const scoreTrend = allSessions.slice(0, 10).reverse().map((s, i) => ({
       session: i + 1,
       score: s.analytics?.averageScore || 0,
       date: s.createdAt,
       type: s.type,
     }));
 
-    // Topic performance
-    const topicPerformance = {};
-    sessions.forEach(session => {
-      const category = session.type;
-      if (!topicPerformance[category]) {
-        topicPerformance[category] = { total: 0, count: 0 };
-      }
-      topicPerformance[category].total += session.analytics?.averageScore || 0;
-      topicPerformance[category].count++;
+    // Topic performance mapping
+    const topicMap = {};
+    allSessions.forEach(s => {
+      const type = s.type || 'technical';
+      if (!topicMap[type]) topicMap[type] = { total: 0, count: 0 };
+      topicMap[type].total += s.analytics?.averageScore || 0;
+      topicMap[type].count++;
     });
 
-    const categoryBreakdown = Object.entries(topicPerformance).map(([name, data]) => ({
+    const categoryBreakdown = Object.entries(topicMap).map(([name, data]) => ({
       name: name.charAt(0).toUpperCase() + name.slice(1),
       score: Math.round(data.total / data.count),
-      sessions: data.count,
+      sessions: data.count
     }));
 
-    // Streak calculation
+    // Improved Streak Calculation
     let streak = 0;
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    for (let i = 0; i < 30; i++) {
-      const date = new Date(today);
-      date.setDate(date.getDate() - i);
-      const hasSession = sessions.some(s => {
-        const sDate = new Date(s.createdAt);
-        sDate.setHours(0, 0, 0, 0);
-        return sDate.getTime() === date.getTime();
-      });
-      if (hasSession) streak++;
-      else if (i > 0) break;
+    const sessionDates = [...new Set(allSessions.map(s => {
+      const d = new Date(s.createdAt);
+      d.setHours(0, 0, 0, 0);
+      return d.getTime();
+    }))].sort((a, b) => b - a);
+
+    const checkDate = new Date();
+    checkDate.setHours(0, 0, 0, 0);
+    
+    // If last session was today or yesterday, start counting
+    if (sessionDates[0] === checkDate.getTime() || sessionDates[0] === (checkDate.getTime() - 86400000)) {
+      for (let i = 0; i < sessionDates.length; i++) {
+        const expectedDate = new Date(sessionDates[0]);
+        expectedDate.setDate(expectedDate.getDate() - i);
+        if (sessionDates[i] === expectedDate.getTime()) streak++;
+        else break;
+      }
     }
 
-    // Readiness score
+    // Readiness score: weighted avg of score (50%), frequency (30%), and streak (20%)
     const readinessScore = Math.min(100, Math.round(
       (avgScore * 0.5) +
-      (Math.min(totalSessions, 20) / 20 * 30) +
-      (Math.min(streak, 7) / 7 * 20)
+      (Math.min(totalSessions, 10) * 3) + 
+      (Math.min(streak, 7) * 2.8)
     ));
 
     res.json({
@@ -81,16 +88,12 @@ router.get('/dashboard', protect, async (req, res) => {
         avgScore,
         streak,
         readinessScore,
-        lastWeekSessions: lastWeekSessions.length,
         scoreTrend,
         categoryBreakdown,
-        recentSessions: sessions.slice(0, 5),
-        improvements: avgScore < 70
-          ? ['Practice more system design', 'Focus on algorithmic problems', 'Work on communication skills']
-          : ['Tackle more hard problems', 'Focus on optimization', 'Practice company-specific questions'],
-        strengths: avgScore > 60
-          ? ['Consistent practice', 'Technical communication', 'Problem-solving approach']
-          : ['Dedication to improvement', 'Learning mindset'],
+        recentSessions: allSessions.slice(0, 5),
+        improvements: avgScore < 70 
+          ? ['Review fundamental concepts', 'Practice coding speed', 'Focus on communication'] 
+          : ['Tackle hard complexity', 'System architecture optimization', 'Edge case handling']
       },
     });
   } catch (error) {

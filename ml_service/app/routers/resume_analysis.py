@@ -13,6 +13,7 @@ class ResumeAnalysisRequest(BaseModel):
     resume_text: str
     job_description: Optional[str] = ""
     target_role: Optional[str] = "Software Engineer"
+    ai_settings: Optional[dict] = {}
 
 
 TECH_SKILLS = [
@@ -198,6 +199,7 @@ async def analyze_resume(request: ResumeAnalysisRequest):
         job_description=request.job_description or "",
         target_role=request.target_role or "Software Engineer",
         base_analysis=base_analysis,
+        ai_settings=request.ai_settings,
     )
 
     # Merge AI suggestions on top of rule-based ones
@@ -295,5 +297,6 @@ async def generate_cover_letter(request: ResumeAnalysisRequest):
         resume_text=request.resume_text,
         job_description=request.job_description,
         target_role=request.target_role,
+        ai_settings=request.ai_settings,
     )
     return {"cover_letter": cover_letter}

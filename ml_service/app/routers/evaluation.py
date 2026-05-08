@@ -15,6 +15,7 @@ class EvaluateAnswerRequest(BaseModel):
     expected_answer: str
     answer_type: Optional[str] = "text"
     keywords: Optional[List[str]] = []
+    ai_settings: Optional[dict] = {}
 
 
 class EvaluateAnswerResponse(BaseModel):
@@ -146,6 +147,7 @@ async def evaluate_answer(request: EvaluateAnswerRequest):
         expected_answer=request.expected_answer,
         keywords=keywords,
         base_scores=scores,
+        ai_settings=request.ai_settings,
     )
 
     if ai_result:

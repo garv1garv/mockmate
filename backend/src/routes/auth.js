@@ -103,33 +103,25 @@ const updateProfile = async (req, res) => {
 // POST /api/auth/ai-settings
 const updateAiSettings = async (req, res) => {
   try {
-    const { aiProvider, ollamaHost, ollamaModel } = req.body;
+    const { aiProvider, ollamaHost, ollamaModel, geminiModel } = req.body;
     
-    // Path to ml_service/.env
-    const envPath = path.join(__dirname, '../../../ml_service/.env');
-    let envContent = '';
-    
-    if (fs.existsSync(envPath)) {
-      envContent = fs.readFileSync(envPath, 'utf8');
-    }
-    
-    // Helper to replace or append env vars
-    const updateEnv = (key, value) => {
-      const regex = new RegExp(`^${key}=.*$`, 'm');
-      if (regex.test(envContent)) {
-        envContent = envContent.replace(regex, `${key}=${value}`);
-      } else {
-        envContent += `\n${key}=${value}`;
-      }
+    const user = await User.findById(req.user._id);
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+
+    user.aiSettings = {
+      provider: aiProvider || user.aiSettings?.provider || 'ollama',
+      ollamaHost: ollamaHost || user.aiSettings?.ollamaHost || 'http://127.0.0.1:11434',
+      ollamaModel: ollamaModel || user.aiSettings?.ollamaModel || 'llama3',
+      geminiModel: geminiModel || user.aiSettings?.geminiModel || 'gemini-1.5-flash',
     };
 
-    if (aiProvider) updateEnv('AI_PROVIDER', aiProvider);
-    if (ollamaHost) updateEnv('OLLAMA_HOST', ollamaHost);
-    if (ollamaModel) updateEnv('OLLAMA_MODEL', ollamaModel);
+    await user.save();
 
-    fs.writeFileSync(envPath, envContent.trim() + '\n');
-
-    res.json({ success: true, message: 'AI settings updated successfully' });
+    res.json({ 
+      success: true, 
+      message: 'AI settings updated successfully',
+      user: user.toJSON() 
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

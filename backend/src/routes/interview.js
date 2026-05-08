@@ -56,6 +56,7 @@ router.post('/question', protect, async (req, res) => {
           experience: req.user.profile?.experience || 'fresher',
           weak_topics: req.user.knowledgeGraph?.weakTopics || [],
         },
+        ai_settings: req.user.aiSettings || { provider: 'ollama' },
       }, { timeout: 10000 });
       questionData = mlResponse.data;
     } catch (mlError) {
@@ -142,10 +143,21 @@ router.post('/complete', protect, async (req, res) => {
 
     await session.save();
 
-    // Update user stats
+    // Update user stats with real aggregate data
+    const allSessions = await InterviewSession.find({ userId: req.user._id, status: 'completed' });
+    const totalSessions = allSessions.length;
+    const totalQuestions = allSessions.reduce((sum, s) => sum + (s.questions?.length || 0), 0);
+    const totalAvgScore = totalSessions 
+      ? Math.round(allSessions.reduce((sum, s) => sum + (s.analytics?.averageScore || 0), 0) / totalSessions)
+      : 0;
+
     await User.findByIdAndUpdate(req.user._id, {
-      $inc: { 'stats.totalSessions': 1, 'stats.totalQuestions': scores.length },
-      $set: { 'stats.lastSessionDate': new Date() },
+      $set: { 
+        'stats.totalSessions': totalSessions,
+        'stats.totalQuestions': totalQuestions,
+        'stats.averageScore': totalAvgScore,
+        'stats.lastSessionDate': new Date()
+      },
     });
 
     res.json({ success: true, session });

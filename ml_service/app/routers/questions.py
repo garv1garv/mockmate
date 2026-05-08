@@ -17,6 +17,7 @@ class GenerateQuestionRequest(BaseModel):
     previous_questions: Optional[List[str]] = []
     company: Optional[str] = None
     job_description: Optional[str] = None
+    ai_settings: Optional[Dict] = {}
 
 
 # ── Static question bank (fallback when AI is unavailable) ───────────────────
@@ -203,6 +204,7 @@ async def generate_question(request: GenerateQuestionRequest):
         company=company,
         job_description=job_desc,
         previous_questions=previous,
+        ai_settings=request.ai_settings,
     )
 
     if ai_q:

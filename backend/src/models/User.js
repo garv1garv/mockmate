@@ -24,6 +24,12 @@ const userSchema = new mongoose.Schema({
     weeklyGoal: { type: Number, default: 5 },
     weeklyCompleted: { type: Number, default: 0 },
   },
+  aiSettings: {
+    provider: { type: String, enum: ['ollama', 'gemini', 'none'], default: 'ollama' },
+    ollamaHost: { type: String, default: 'http://127.0.0.1:11434' },
+    ollamaModel: { type: String, default: 'llama3' },
+    geminiModel: { type: String, default: 'gemini-1.5-flash' },
+  },
   knowledgeGraph: {
     strongTopics: [String],
     weakTopics: [String],
