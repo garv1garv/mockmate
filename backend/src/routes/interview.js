@@ -69,7 +69,7 @@ router.post('/question', protect, async (req, res) => {
             geminiModel: req.user.aiSettings?.geminiModel || 'gemini-1.5-flash',
             geminiApiKey: req.user.aiSettings?.geminiApiKey || '',
           },
-        }, { timeout: 10000 });
+        }, { timeout: 45000 });
         questionData = mlResponse.data;
       } else {
         // Classic mode
@@ -105,7 +105,7 @@ router.post('/evaluate', protect, async (req, res) => {
           geminiModel: req.user.aiSettings?.geminiModel || 'gemini-1.5-flash',
           geminiApiKey: req.user.aiSettings?.geminiApiKey || '',
         },
-      }, { timeout: 15000 });
+      }, { timeout: 45000 });
       evaluation = mlResponse.data;
     } catch (mlError) {
       // Fallback evaluation

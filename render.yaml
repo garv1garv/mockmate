@@ -5,7 +5,7 @@ services:
     env: python
     rootDir: ml_service
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn main:app -w 2 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT
+    startCommand: gunicorn main:app -w 2 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT --timeout 300 --log-level debug
     envVars:
       - key: AI_PROVIDER
         value: gemini
@@ -23,7 +23,7 @@ services:
       - key: MONGODB_URI
         sync: false
       - key: ML_SERVICE_URL
-        value: http://mockmate-ml
+        value: http://mockmate-ml:10000
       - key: JWT_SECRET
         generateValue: true
       - key: NODE_ENV

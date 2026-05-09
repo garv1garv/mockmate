@@ -14,6 +14,7 @@ router.post('/critique', protect, async (req, res) => {
       return res.status(400).json({ success: false, message: 'Project description is required' });
     }
 
+    console.log('Requesting Project Critique via:', ML_URL);
     const mlResponse = await axios.post(`${ML_URL}/critique-project`, {
       project_description: projectDescription,
       tech_stack: techStack || [],
@@ -25,7 +26,7 @@ router.post('/critique', protect, async (req, res) => {
         geminiModel: req.user.aiSettings?.geminiModel || 'gemini-1.5-flash',
         geminiApiKey: req.user.aiSettings?.geminiApiKey || '',
       },
-    }, { timeout: 30000 });
+    }, { timeout: 60000 });
 
     res.json({ success: true, critique: mlResponse.data });
   } catch (error) {

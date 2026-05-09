@@ -26,7 +26,7 @@ router.post('/upload', protect, upload.single('file'), async (req, res) => {
 
     const mlResponse = await axios.post(`${ML_URL}/upload-resume`, formData, {
       headers: formData.getHeaders(),
-      timeout: 20000,
+      timeout: 45000,
     });
 
     // Save parsed text to user profile for future use (e.g., Resume-based Interview)

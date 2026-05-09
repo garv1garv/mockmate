@@ -10,11 +10,9 @@ router.post('/generate', protect, async (req, res) => {
   try {
     const { targetRole, currentSkills, experienceLevel, availableHours } = req.body;
 
+    console.log('Generating Learning Path via:', ML_URL);
     const mlResponse = await axios.post(`${ML_URL}/generate-learning-path`, {
-      target_role: targetRole,
-      current_skills: currentSkills,
-      experience_level: experienceLevel,
-      available_hours_per_week: availableHours,
+      ...req.body,
       ai_settings: {
         provider: req.user.aiSettings?.provider || 'ollama',
         ollamaHost: req.user.aiSettings?.ollamaHost || 'http://127.0.0.1:11434',
@@ -22,7 +20,7 @@ router.post('/generate', protect, async (req, res) => {
         geminiModel: req.user.aiSettings?.geminiModel || 'gemini-1.5-flash',
         geminiApiKey: req.user.aiSettings?.geminiApiKey || '',
       },
-    }, { timeout: 30000 });
+    }, { timeout: 60000 });
 
     res.json(mlResponse.data);
   } catch (error) {
