@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { LayoutDashboard, Play, FileText, BookOpen, BarChart3, Settings, LogOut, Brain, Trophy, Flame } from 'lucide-react';
+import { LayoutDashboard, Play, FileText, BookOpen, BarChart3, Settings, LogOut, Brain, Trophy, Flame, Box } from 'lucide-react';
 import { logout } from '../store/slices/authSlice';
 
 const NAV_ITEMS = [
@@ -9,6 +9,7 @@ const NAV_ITEMS = [
   { icon: Play, label: 'Interview', to: '/interview/new' },
   { icon: FileText, label: 'Resume', to: '/resume' },
   { icon: BookOpen, label: 'Learning Path', to: '/learning-path' },
+  { icon: Box, label: 'Project Critique', to: '/project-critique' },
 ];
 
 export default function Sidebar() {

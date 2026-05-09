@@ -63,4 +63,8 @@ export const learningPathAPI = {
   generate: (data: any) => API.post('/learning-path/generate', data),
 };
 
+export const projectAPI = {
+  critique: (data: any) => API.post('/project/critique', data),
+};
+
 export default API;

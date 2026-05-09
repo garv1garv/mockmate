@@ -10,7 +10,7 @@ import DashboardPage from './pages/DashboardPage';
 import InterviewPage from './pages/InterviewPage';
 import ResumePage from './pages/ResumePage';
 import LearningPathPage from './pages/LearningPathPage';
-
+import ProjectCritiquePage from './pages/ProjectCritiquePage';
 import SettingsPage from './pages/SettingsPage';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -50,6 +50,7 @@ function AppContent() {
         <Route path="/interview/new" element={<ProtectedRoute><InterviewPage /></ProtectedRoute>} />
         <Route path="/resume" element={<ProtectedRoute><ResumePage /></ProtectedRoute>} />
         <Route path="/learning-path" element={<ProtectedRoute><LearningPathPage /></ProtectedRoute>} />
+        <Route path="/project-critique" element={<ProtectedRoute><ProjectCritiquePage /></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

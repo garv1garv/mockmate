@@ -569,3 +569,60 @@ Respond directly with the text of the cover letter. Do not include markdown form
     if not raw:
         return "Dear Hiring Manager,\n\nI am writing to express my strong interest in this position. Enclosed is my resume for your review.\n\nSincerely,\nCandidate"
     return raw.strip()
+
+
+async def ai_critique_project(
+    project_description: str,
+    tech_stack: list[str],
+    target_role: str,
+    ai_settings: Optional[dict] = None,
+) -> Optional[dict]:
+    """
+    Perform a deep architectural critique of a user's project.
+    """
+    settings = ai_settings or {}
+    provider = settings.get("provider") or (_active_provider() if not GEMINI_API_KEY else "gemini")
+    host = settings.get("ollamaHost", OLLAMA_HOST)
+    model = settings.get("ollamaModel", OLLAMA_MODEL) if provider == "ollama" else settings.get("geminiModel", GEMINI_MODEL)
+    api_key = settings.get("geminiApiKey") or GEMINI_API_KEY
+
+    prompt = f"""
+You are a Staff Systems Architect at a Tier-1 tech company. Perform a rigorous architectural critique of the following project.
+
+PROJECT DESCRIPTION:
+{project_description}
+
+TECH STACK:
+{", ".join(tech_stack)}
+
+TARGET ROLE: {target_role}
+
+ANALYSIS REQUIREMENTS:
+1. ARCHITECTURAL SCORE: Evaluate the complexity and soundness (0-100).
+2. STRENGTHS: Identify 3 high-level engineering wins.
+3. VULNERABILITIES: Identify 3 technical risks, bottlenecks, or single points of failure.
+4. KILLER QUESTIONS: Generate 3 extremely tough questions an interviewer would ask to "grill" the candidate on this specific architecture.
+5. STAFF-LEVEL ALTERNATIVE: Suggest a more scalable or resilient way to have built one specific part of this system.
+
+Respond with ONLY valid JSON:
+{{
+  "architecture_score": <int>,
+  "summary": "<2-sentence technical overview>",
+  "strengths": ["<strength 1>", "<strength 2>", "<strength 3>"],
+  "vulnerabilities": [
+    {{"risk": "<risk name>", "details": "<technical explanation>"}}
+  ],
+  "killer_questions": [
+    {{"question": "<tough question>", "context": "<why they ask this>", "ideal_answer_signals": ["<signal 1>", "<signal 2>"]}}
+  ],
+  "staff_alternative": {{
+    "component": "<component name>",
+    "suggestion": "<the better way>",
+    "benefit": "<why it's better>"
+  }}
+}}
+"""
+    raw = await complete(prompt, "You are a Staff Systems Architect and Technical Interviewer.", provider_override=provider, host_override=host, model_override=model, gemini_api_key_override=api_key)
+    if not raw:
+        return None
+    return _extract_json(raw)
