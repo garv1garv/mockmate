@@ -72,8 +72,6 @@ QUESTION_BANK = {
                 {"text": "Explain the KMP (Knuth-Morris-Pratt) algorithm.", "keywords": ["string matching", "prefix function", "O(n+m)"], "expected": "Efficient string matching algorithm that avoids re-checking characters by using a prefix table."},
             ],
         },
-            ],
-        },
         "cloud-computing": {
             "medium": [
                 {"text": "What is the difference between IaaS, PaaS, and SaaS?", "keywords": ["infrastructure", "platform", "software", "management", "abstraction"], "expected": "IaaS provides raw compute/storage. PaaS provides a platform for development. SaaS is ready-to-use software delivered over the internet."},
