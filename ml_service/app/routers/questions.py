@@ -13,12 +13,12 @@ class GenerateQuestionRequest(BaseModel):
     type: str = "technical"
     difficulty: str = "medium"
     category: str = "general"
-    user_profile: Optional[Dict] = {}
-    previous_questions: Optional[List[str]] = []
+    user_profile: Dict = {}
+    previous_questions: List[str] = []
     company: Optional[str] = None
     job_description: Optional[str] = None
     resume_text: Optional[str] = None
-    ai_settings: Optional[Dict] = {}
+    ai_settings: Dict = {}
 
 
 # ── Static question bank (fallback when AI is unavailable) ───────────────────

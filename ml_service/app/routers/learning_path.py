@@ -10,14 +10,14 @@ router = APIRouter()
 
 class LearningPathRequest(BaseModel):
     target_role: str
-    current_skills: Optional[List[str]] = []
-    experience_level: Optional[str] = "fresher"
-    weak_topics: Optional[List[str]] = []
-    available_hours_per_week: Optional[int] = 10
-    focus_areas: Optional[List[str]] = []
-    project_preference: Optional[str] = "fullstack"
-    learning_style: Optional[str] = "practical"
-    ai_settings: Optional[Dict] = None
+    current_skills: List[str] = []
+    experience_level: str = "fresher"
+    weak_topics: List[str] = []
+    available_hours_per_week: int = 10
+    focus_areas: List[str] = []
+    project_preference: str = "fullstack"
+    learning_style: str = "practical"
+    ai_settings: Dict = {}
 
 
 ROLE_REQUIREMENTS = {
@@ -79,9 +79,11 @@ async def generate_learning_path(request: LearningPathRequest):
     role_key     = request.target_role.lower()
     requirements = ROLE_REQUIREMENTS.get(role_key, ROLE_REQUIREMENTS["software engineer"])
 
+    current_skills = request.current_skills or []
+    weak_topics = request.weak_topics or []
     all_required   = [topic for topics in requirements.values() for topic in topics]
-    skill_gap      = [t for t in all_required if t.lower() not in [s.lower() for s in request.current_skills]]
-    priority_topics = request.weak_topics + [t for t in skill_gap if t not in request.weak_topics]
+    skill_gap      = [t for t in all_required if t.lower() not in [s.lower() for s in current_skills]]
+    priority_topics = weak_topics + [t for t in skill_gap if t not in weak_topics]
 
     topics_count    = len(skill_gap)
     hours_per_topic = 8 if request.experience_level == "fresher" else 5

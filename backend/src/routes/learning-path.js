@@ -13,7 +13,13 @@ router.post('/generate', protect, async (req, res) => {
 
     console.log('Generating Learning Path via:', ML_URL);
     const mlResponse = await axios.post(getMLUrl('generate-learning-path'), {
-      ...req.body,
+      target_role: targetRole,
+      current_skills: currentSkills,
+      experience_level: experienceLevel,
+      available_hours_per_week: availableHours,
+      focus_areas: req.body.focus_areas || [],
+      project_preference: req.body.project_preference || 'fullstack',
+      learning_style: req.body.learning_style || 'practical',
       ai_settings: {
         provider: req.user.aiSettings?.provider || 'ollama',
         ollamaHost: req.user.aiSettings?.ollamaHost || 'http://127.0.0.1:11434',
