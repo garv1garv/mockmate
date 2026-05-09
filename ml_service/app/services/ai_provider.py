@@ -95,13 +95,15 @@ async def _call_ollama(
     try:
         async with httpx.AsyncClient(timeout=_HTTP_TIMEOUT) as client:
             resp = await client.post(f"{host}/api/generate", json=payload)
-            resp.raise_for_status()
+            if resp.status_code != 200:
+                logger.error("Ollama error (%d): %s", resp.status_code, resp.text[:200])
+                return None
             data = resp.json()
             return data.get("response", "").strip()
     except httpx.ConnectError:
         logger.error(
             "Cannot connect to Ollama at %s — is Ollama running? "
-            "Start it with: ollama serve", host
+            "Note: Localhost won't work from a cloud deployment like Render.", host
         )
     except Exception as exc:
         logger.error("Ollama call failed: %s", exc)
@@ -132,8 +134,13 @@ async def _call_gemini(
     try:
         async with httpx.AsyncClient(timeout=_HTTP_TIMEOUT) as client:
             resp = await client.post(url, json=payload)
-            resp.raise_for_status()
+            if resp.status_code != 200:
+                logger.error("Gemini API error (%d): %s", resp.status_code, resp.text[:500])
+                return None
             data = resp.json()
+            if "candidates" not in data or not data["candidates"]:
+                logger.error("Gemini returned no candidates. Safety filter? Response: %s", data)
+                return None
             return (
                 data["candidates"][0]["content"]["parts"][0]["text"].strip()
             )
@@ -194,6 +201,7 @@ def _extract_json(text: str) -> Optional[dict | list]:
             return json.loads(m.group(1))
         except json.JSONDecodeError:
             pass
+    logger.warning("Failed to extract JSON from AI response: %s...", text[:200] if text else "EMPTY")
     return None
 
 
@@ -222,7 +230,7 @@ async def ai_evaluate_answer(
     Falls back to None so the caller uses its static logic.
     """
     settings = ai_settings or {}
-    provider = settings.get("provider") or (_active_provider() if not GEMINI_API_KEY else "gemini")
+    provider = settings.get("provider") or _active_provider(settings.get("geminiApiKey") or GEMINI_API_KEY)
     host = settings.get("ollamaHost", OLLAMA_HOST)
     model = settings.get("ollamaModel", OLLAMA_MODEL) if provider == "ollama" else settings.get("geminiModel", GEMINI_MODEL)
     api_key = settings.get("geminiApiKey") or GEMINI_API_KEY
@@ -281,7 +289,7 @@ async def ai_generate_question(
     Returns dict with: text, expected_answer, keywords, follow_up_questions.
     """
     settings = ai_settings or {}
-    provider = settings.get("provider") or (_active_provider() if not GEMINI_API_KEY else "gemini")
+    provider = settings.get("provider") or _active_provider(settings.get("geminiApiKey") or GEMINI_API_KEY)
     host = settings.get("ollamaHost", OLLAMA_HOST)
     model = settings.get("ollamaModel", OLLAMA_MODEL) if provider == "ollama" else settings.get("geminiModel", GEMINI_MODEL)
     api_key = settings.get("geminiApiKey") or GEMINI_API_KEY
@@ -355,7 +363,7 @@ async def ai_analyze_resume(
     Returns dict with: ai_summary, ai_suggestions, ai_strengths.
     """
     settings = ai_settings or {}
-    provider = settings.get("provider") or (_active_provider() if not GEMINI_API_KEY else "gemini")
+    provider = settings.get("provider") or _active_provider(settings.get("geminiApiKey") or GEMINI_API_KEY)
     host = settings.get("ollamaHost", OLLAMA_HOST)
     model = settings.get("ollamaModel", OLLAMA_MODEL) if provider == "ollama" else settings.get("geminiModel", GEMINI_MODEL)
     api_key = settings.get("geminiApiKey") or GEMINI_API_KEY
@@ -424,7 +432,7 @@ async def ai_generate_learning_path(
     Use AI to personalise the learning path roadmap with high accuracy and uniqueness.
     """
     settings = ai_settings or {}
-    provider = settings.get("provider") or (_active_provider() if not GEMINI_API_KEY else "gemini")
+    provider = settings.get("provider") or _active_provider(settings.get("geminiApiKey") or GEMINI_API_KEY)
     host = settings.get("ollamaHost", OLLAMA_HOST)
     model = settings.get("ollamaModel", OLLAMA_MODEL) if provider == "ollama" else settings.get("geminiModel", GEMINI_MODEL)
     api_key = settings.get("geminiApiKey") or GEMINI_API_KEY
@@ -544,7 +552,7 @@ async def ai_generate_cover_letter(
 ) -> str:
     """Generate a highly tailored cover letter."""
     settings = ai_settings or {}
-    provider = settings.get("provider") or (_active_provider() if not GEMINI_API_KEY else "gemini")
+    provider = settings.get("provider") or _active_provider(settings.get("geminiApiKey") or GEMINI_API_KEY)
     host = settings.get("ollamaHost", OLLAMA_HOST)
     model = settings.get("ollamaModel", OLLAMA_MODEL) if provider == "ollama" else settings.get("geminiModel", GEMINI_MODEL)
     api_key = settings.get("geminiApiKey") or GEMINI_API_KEY
@@ -581,7 +589,7 @@ async def ai_critique_project(
     Perform a deep architectural critique of a user's project.
     """
     settings = ai_settings or {}
-    provider = settings.get("provider") or (_active_provider() if not GEMINI_API_KEY else "gemini")
+    provider = settings.get("provider") or _active_provider(settings.get("geminiApiKey") or GEMINI_API_KEY)
     host = settings.get("ollamaHost", OLLAMA_HOST)
     model = settings.get("ollamaModel", OLLAMA_MODEL) if provider == "ollama" else settings.get("geminiModel", GEMINI_MODEL)
     api_key = settings.get("geminiApiKey") or GEMINI_API_KEY
