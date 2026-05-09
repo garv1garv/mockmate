@@ -488,17 +488,30 @@ export default function InterviewPage() {
                 <p style={{ fontSize: 14, lineHeight: 1.7, color: 'var(--text-secondary)' }}>{evaluation.feedback}</p>
               </div>
 
-              {evaluation.suggestions?.length > 0 && (
-                <div style={{ marginBottom: 16 }}>
-                  <p style={{ fontSize: 13, fontWeight: 600, marginBottom: 10 }}>💡 Suggestions:</p>
-                  {evaluation.suggestions.map((s: string, i: number) => (
-                    <div key={i} style={{ display: 'flex', gap: 8, fontSize: 13, color: 'var(--text-secondary)', marginBottom: 6 }}>
-                      <AlertCircle size={14} color="var(--warning)" style={{ flexShrink: 0, marginTop: 2 }} />
-                      {s}
-                    </div>
-                  ))}
-                </div>
-              )}
+              <div className="grid-2" style={{ gap: 16, marginBottom: 20 }}>
+                {evaluation.suggestions?.length > 0 && (
+                  <div>
+                    <p style={{ fontSize: 13, fontWeight: 600, marginBottom: 10, color: 'var(--warning)' }}>💡 Key Improvements:</p>
+                    {evaluation.suggestions.map((s: string, i: number) => (
+                      <div key={i} style={{ display: 'flex', gap: 8, fontSize: 12, color: 'var(--text-secondary)', marginBottom: 6 }}>
+                        <div style={{ width: 4, height: 4, borderRadius: '50%', background: 'var(--warning)', marginTop: 6, flexShrink: 0 }} />
+                        {s}
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {question?.follow_up_questions?.length > 0 && (
+                  <div>
+                    <p style={{ fontSize: 13, fontWeight: 600, marginBottom: 10, color: 'var(--accent-primary)' }}>🎯 Next-Level Follow-ups:</p>
+                    {question.follow_up_questions.map((q: string, i: number) => (
+                      <div key={i} style={{ display: 'flex', gap: 8, fontSize: 12, color: 'var(--text-secondary)', marginBottom: 6 }}>
+                        <div style={{ width: 4, height: 4, borderRadius: '50%', background: 'var(--accent-primary)', marginTop: 6, flexShrink: 0 }} />
+                        {q}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
 
               <button className="btn btn-primary" style={{ width: '100%' }} onClick={handleNext}>
                 {questionIndex + 1 >= totalQuestions ? <><CheckCircle size={16} /> Complete Session</> : <><ChevronRight size={16} /> Next Question</>}

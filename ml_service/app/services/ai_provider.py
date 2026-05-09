@@ -50,13 +50,17 @@ _HTTP_TIMEOUT = 60.0  # seconds
 # Provider detection helper
 # ──────────────────────────────────────────────────────────────────────────────
 
-def _active_provider() -> str:
+def _active_provider(incoming_key: Optional[str] = None) -> str:
     """Return the effective AI provider, falling back gracefully."""
+    # If the user provided a key in their settings, and the provider is gemini or not set, use gemini
+    if incoming_key and (AI_PROVIDER == "gemini" or AI_PROVIDER == "ollama"):
+        return "gemini"
+        
     if AI_PROVIDER == "none":
         return "none"
     if AI_PROVIDER == "gemini":
-        if not GEMINI_API_KEY:
-            logger.warning("AI_PROVIDER=gemini but GEMINI_API_KEY not set — falling back to none")
+        if not GEMINI_API_KEY and not incoming_key:
+            logger.warning("AI_PROVIDER=gemini but no GEMINI_API_KEY set — falling back to none")
             return "none"
         return "gemini"
     # Default: Ollama
@@ -154,11 +158,18 @@ async def complete(
     Send a prompt to the configured AI provider.
     Returns the model's text response, or None on failure.
     """
-    provider = provider_override or _active_provider()
+    # Decide provider: override > automatic check (passing the incoming key)
+    provider = provider_override or _active_provider(gemini_api_key_override)
+    
     if provider == "none":
         return None
     if provider == "gemini":
-        return await _call_gemini(prompt, system, model_override, gemini_api_key_override)
+        # Ensure we have a key (either from override or env)
+        api_key = gemini_api_key_override or GEMINI_API_KEY
+        if not api_key:
+            logger.error("Gemini provider selected but no API key available")
+            return None
+        return await _call_gemini(prompt, system, model_override, api_key)
     return await _call_ollama(prompt, system, host_override, model_override)
 
 
@@ -211,10 +222,10 @@ async def ai_evaluate_answer(
     Falls back to None so the caller uses its static logic.
     """
     settings = ai_settings or {}
-    provider = settings.get("provider", AI_PROVIDER)
+    provider = settings.get("provider") or (_active_provider() if not GEMINI_API_KEY else "gemini")
     host = settings.get("ollamaHost", OLLAMA_HOST)
     model = settings.get("ollamaModel", OLLAMA_MODEL) if provider == "ollama" else settings.get("geminiModel", GEMINI_MODEL)
-    api_key = settings.get("geminiApiKey")
+    api_key = settings.get("geminiApiKey") or GEMINI_API_KEY
 
     logger.info("AI Provider: %s | Host: %s | Model: %s", provider, host, model)
 
@@ -270,46 +281,57 @@ async def ai_generate_question(
     Returns dict with: text, expected_answer, keywords, follow_up_questions.
     """
     settings = ai_settings or {}
-    provider = settings.get("provider", AI_PROVIDER)
+    provider = settings.get("provider") or (_active_provider() if not GEMINI_API_KEY else "gemini")
     host = settings.get("ollamaHost", OLLAMA_HOST)
     model = settings.get("ollamaModel", OLLAMA_MODEL) if provider == "ollama" else settings.get("geminiModel", GEMINI_MODEL)
-    api_key = settings.get("geminiApiKey")
+    api_key = settings.get("geminiApiKey") or GEMINI_API_KEY
 
     logger.info("Generating question | Provider: %s | Host: %s | Model: %s", provider, host, model)
 
-    resume_context = f"\nRESUME CONTEXT:\n{resume_text}" if resume_text else ""
-    # Add a random seed/twist to prevent AI repetitive patterns
+    resume_context = f"\nRESUME CONTEXT (Probe specific claims/projects):\n{resume_text[:4000]}" if resume_text else ""
+    
+    # Advanced randomization layer
     twists = [
-        "Focus on real-world practical application.",
-        "Include a slight edge-case scenario.",
-        "Focus on modern best practices (2024+).",
-        "Explain the 'Why' behind the concept.",
-        "Compare this with an alternative approach."
+        "Focus on distributed systems trade-offs.",
+        "Include a scenario involving high-concurrency or race conditions.",
+        "Focus on performance optimization and memory efficiency.",
+        "Ask about an edge case that typically breaks a naive implementation.",
+        "Ask for a comparison between two modern industry-standard approaches.",
+        "Focus on security vulnerabilities (e.g. OWASP Top 10) related to this topic.",
+        "Include a requirement for high availability or fault tolerance."
     ]
     twist = random.choice(twists)
     
-    prev = "\n".join(f"- {q}" for q in previous_questions[-10:]) if previous_questions else "None"
-    company_ctx = f"targeting {company}" if company else "general tech interview"
+    prev = "\n".join(f"- {q}" for q in previous_questions[-15:]) if previous_questions else "None"
+    company_ctx = f"targeting {company} (mimic their interview style)" if company else "general elite tech interview"
+    
     prompt = f"""
-You are an expert technical interviewer. Generate a UNIQUE, high-quality interview question for a {company_ctx}.
+You are a Staff Software Engineer at a Tier-1 tech company (Google/Meta/Stripe). Generate a UNIQUE, deeply technical interview question.
+
+CONTEXT:
+- INTERVIEW TYPE: {company_ctx}
+- QUESTION TYPE: {q_type}
+- DIFFICULTY: {difficulty} (STRICTLY adhere to this level)
+- CATEGORY: {category}
+- JOB DESCRIPTION: {job_description or 'Software Engineer'}
 {resume_context}
-TYPE: {q_type}
-DIFFICULTY: {difficulty}
-SPECIFIC CATEGORY: {category}
-JOB DESCRIPTION CONTEXT: {job_description or 'Software Engineer'}
-ALREADY ASKED (STRICTLY DO NOT REPEAT):
+
+PREVIOUSLY ASKED (DO NOT REPEAT OR BE SIMILAR):
 {prev}
 
-INSTRUCTION: {twist}
-{'If RESUME CONTEXT is provided above, generate a question that probes the candidates specific experience, projects, or claims from their resume. Be specific — reference technologies or achievements from the resume.' if resume_text else 'The question must be deeply related to ' + category + '.'}
-Avoid generic questions. Ask about a specific implementation detail, a trade-off, or a problem-solving scenario.
+INTERVIEWER DIRECTIVE:
+{twist}
+The question must be specific, situational, and probe for deep understanding rather than rote memorization. 
+
+If RESUME CONTEXT is provided, your question MUST directly reference a project, technology, or achievement listed in the resume to verify its authenticity and depth.
 
 Respond with ONLY valid JSON:
 {{
   "text": "<the question text>",
-  "expected_answer": "<a concise 2-3 sentence reference answer>",
-  "keywords": ["<key term 1>", "<key term 2>", "<key term 3>"],
-  "follow_up_questions": ["<follow up 1>", "<follow up 2>"]
+  "expected_answer": "<a comprehensive 3-4 sentence reference answer covering key technical signals>",
+  "keywords": ["<key technical term 1>", "<key technical term 2>", "<key technical term 3>", "<key technical term 4>"],
+  "follow_up_questions": ["<advanced follow up 1>", "<advanced follow up 2>"],
+  "interviewer_note": "<internal note on what specific signals this question tests>"
 }}
 """
     raw = await complete(prompt, SYSTEM_INTERVIEW_EXPERT, provider_override=provider, host_override=host, model_override=model, gemini_api_key_override=api_key)
@@ -333,10 +355,10 @@ async def ai_analyze_resume(
     Returns dict with: ai_summary, ai_suggestions, ai_strengths.
     """
     settings = ai_settings or {}
-    provider = settings.get("provider", AI_PROVIDER)
+    provider = settings.get("provider") or (_active_provider() if not GEMINI_API_KEY else "gemini")
     host = settings.get("ollamaHost", OLLAMA_HOST)
     model = settings.get("ollamaModel", OLLAMA_MODEL) if provider == "ollama" else settings.get("geminiModel", GEMINI_MODEL)
-    api_key = settings.get("geminiApiKey")
+    api_key = settings.get("geminiApiKey") or GEMINI_API_KEY
 
     jd_section = f"\n\nJOB DESCRIPTION (analyse match against this):\n{job_description[:1500]}" if job_description and job_description.strip() else ""
     prompt = f"""
@@ -402,10 +424,10 @@ async def ai_generate_learning_path(
     Use AI to personalise the learning path roadmap with high accuracy and uniqueness.
     """
     settings = ai_settings or {}
-    provider = settings.get("provider", AI_PROVIDER)
+    provider = settings.get("provider") or (_active_provider() if not GEMINI_API_KEY else "gemini")
     host = settings.get("ollamaHost", OLLAMA_HOST)
     model = settings.get("ollamaModel", OLLAMA_MODEL) if provider == "ollama" else settings.get("geminiModel", GEMINI_MODEL)
-    api_key = settings.get("geminiApiKey")
+    api_key = settings.get("geminiApiKey") or GEMINI_API_KEY
 
     skills_str = ", ".join(current_skills[:15]) if current_skills else "None listed"
     gaps_str = ", ".join(base_path.get("skill_gap", [])[:10]) or "None"
@@ -522,10 +544,10 @@ async def ai_generate_cover_letter(
 ) -> str:
     """Generate a highly tailored cover letter."""
     settings = ai_settings or {}
-    provider = settings.get("provider", AI_PROVIDER)
+    provider = settings.get("provider") or (_active_provider() if not GEMINI_API_KEY else "gemini")
     host = settings.get("ollamaHost", OLLAMA_HOST)
     model = settings.get("ollamaModel", OLLAMA_MODEL) if provider == "ollama" else settings.get("geminiModel", GEMINI_MODEL)
-    api_key = settings.get("geminiApiKey")
+    api_key = settings.get("geminiApiKey") or GEMINI_API_KEY
 
     jd_section = f"\nJOB DESCRIPTION:\n{job_description[:1000]}" if job_description else ""
     prompt = f"""
