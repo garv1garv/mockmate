@@ -34,8 +34,6 @@ export default function ProjectCritiquePage() {
 
   return (
     <div className="app-layout">
-      {/* Debug Marker */}
-      <div style={{ position: 'fixed', top: 0, left: '50%', transform: 'translateX(-50%)', zIndex: 9999, background: 'red', color: 'white', padding: '2px 10px', fontSize: 10 }}>CRITIQUE_PAGE_LOADED</div>
       <Sidebar />
       <main className="main-content" style={{ padding: '40px', maxWidth: 1000, margin: '0 auto' }}>
         <div style={{ marginBottom: 40 }}>
