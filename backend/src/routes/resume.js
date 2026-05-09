@@ -9,7 +9,9 @@ const FormData = require('form-data');
 
 const upload = multer({ limits: { fileSize: 10 * 1024 * 1024 } }); // 10MB limit
 
-const ML_URL = process.env.ML_SERVICE_URL || 'http://localhost:8000';
+const ML_URL = (process.env.ML_SERVICE_URL || 'http://localhost:8000').replace(/\/$/, '');
+
+const getMLUrl = (path) => `${ML_URL}/${path.replace(/^\//, '')}`;
 
 // POST /api/resume/upload
 router.post('/upload', protect, upload.single('file'), async (req, res) => {
@@ -36,8 +38,17 @@ router.post('/upload', protect, upload.single('file'), async (req, res) => {
 
     res.json({ success: true, text: mlResponse.data.text });
   } catch (error) {
-    console.error('Proxy Upload Error:', error.message);
-    res.status(500).json({ success: false, message: error.message });
+    console.error('Resume Upload Proxy Error:', {
+      message: error.message,
+      url: error.config?.url,
+      status: error.response?.status,
+      data: error.response?.data
+    });
+    res.status(500).json({ 
+      success: false, 
+      message: error.message,
+      details: error.response?.data || 'No further details from ML service'
+    });
   }
 });
 

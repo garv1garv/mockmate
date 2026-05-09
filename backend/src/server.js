@@ -67,6 +67,30 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Diagnostic route for ML connectivity
+app.get('/api/diag/ml', async (req, res) => {
+  const axios = require('axios');
+  const mlUrl = (process.env.ML_SERVICE_URL || 'http://localhost:8000').replace(/\/$/, '');
+  try {
+    const start = Date.now();
+    const resp = await axios.get(`${mlUrl}/health`, { timeout: 5000 });
+    res.json({ 
+      reachable: true, 
+      latency: `${Date.now() - start}ms`, 
+      data: resp.data,
+      url: mlUrl 
+    });
+  } catch (err) {
+    res.status(500).json({ 
+      reachable: false, 
+      error: err.message, 
+      url: mlUrl,
+      code: err.code,
+      response: err.response?.data
+    });
+  }
+});
+
 // 404 handler
 app.use('*', (req, res) => {
   res.status(404).json({ success: false, message: `Route ${req.originalUrl} not found` });
