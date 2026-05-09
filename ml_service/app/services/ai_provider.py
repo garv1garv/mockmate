@@ -338,29 +338,43 @@ async def ai_analyze_resume(
     model = settings.get("ollamaModel", OLLAMA_MODEL) if provider == "ollama" else settings.get("geminiModel", GEMINI_MODEL)
     api_key = settings.get("geminiApiKey")
 
-    jd_section = f"\nJOB DESCRIPTION:\n{job_description[:1000]}" if job_description else ""
+    jd_section = f"\n\nJOB DESCRIPTION (analyse match against this):\n{job_description[:1500]}" if job_description and job_description.strip() else ""
     prompt = f"""
-You are a senior technical recruiter. Analyse this resume and provide personalised feedback.
+You are a Distinguished Senior Technical Recruiter who has reviewed 10,000+ resumes at Google, Meta, and Netflix. Your analysis must be SPECIFIC, ACCURATE, and DEEPLY ACTIONABLE — not generic boilerplate.
 
-TARGET ROLE: {target_role}{jd_section}
+TASK: Analyse the resume below for a candidate targeting the role of: {target_role}
+{jd_section}
 
-RESUME (first 8000 chars):
+RULE-BASED SIGNALS (cross-check these, then override with your expert judgement):
+- Rule-based ATS Score: {base_analysis.get('ats_score', 'N/A')}/100
+- Rule-based JD Match: {base_analysis.get('jd_match', 'N/A')}/100
+- Skills Detected: {base_analysis.get('skills_count', 0)}
+- Quantified Achievements Found: {base_analysis.get('quant_count', 0)}
+- Word Count: {base_analysis.get('word_count', 0)}
+
+RESUME CONTENT:
 {resume_text[:8000]}
 
-BASE ATS SCORE: {base_analysis.get('ats_score', 'N/A')}/100
+INSTRUCTIONS:
+1. ai_ats_score: Score ATS compatibility (0-100). Consider formatting clarity, keyword density, section structure, and absence of tables/images (which break ATS). Be precise, not rounded.
+2. ai_jd_match_score: Score how well the resume matches the JD (0 if no JD provided). Analyse skill overlap and keyword mirroring.
+3. ai_summary: Write a 2-3 sentence executive profile of this candidate — as if briefing a hiring manager. Name specific technologies, seniority signals, and domain expertise you actually see in the resume.
+4. ai_suggestions: Provide 3-5 SPECIFIC, non-generic suggestions. Reference actual content from the resume (e.g., "The bullet 'worked on backend systems' under Company X should be rewritten to quantify impact"). Categorise each.
+5. ai_strengths: Identify 3 genuine strengths you see in THIS resume (not generic). Be specific (e.g., "Strong GCP and Kubernetes experience evidenced by 3 project entries").
+6. missing_sections: List any important sections absent from this resume (e.g., 'Certifications', 'Open Source Contributions', 'Publications').
 
 Respond with ONLY valid JSON:
 {{
-  "ai_ats_score": <int 0-100 rating resume quality and ATS friendliness>,
-  "ai_jd_match_score": <int 0-100 rating match against job description, 0 if no JD>,
-  "ai_summary": "<2-3 sentence executive summary of the candidate's profile>",
+  "ai_ats_score": <int 0-100>,
+  "ai_jd_match_score": <int 0-100>,
+  "ai_summary": "<Specific 2-3 sentence executive profile>",
   "ai_suggestions": [
-    {{"category": "<category>", "priority": "high|medium|low", "text": "<specific actionable suggestion>"}},
-    {{"category": "<category>", "priority": "high|medium|low", "text": "<specific actionable suggestion>"}},
-    {{"category": "<category>", "priority": "medium", "text": "<specific actionable suggestion>"}}
+    {{"category": "<Category>", "priority": "high|medium|low", "text": "<Specific actionable suggestion referencing resume content>"}},
+    {{"category": "<Category>", "priority": "high|medium|low", "text": "<Specific actionable suggestion>"}},
+    {{"category": "<Category>", "priority": "medium", "text": "<Specific actionable suggestion>"}}
   ],
-  "ai_strengths": ["<strength 1>", "<strength 2>", "<strength 3>"],
-  "missing_sections": ["<any key section missing from resume>"]
+  "ai_strengths": ["<Specific strength 1>", "<Specific strength 2>", "<Specific strength 3>"],
+  "missing_sections": ["<Missing section 1>"]
 }}
 """
     raw = await complete(prompt, SYSTEM_INTERVIEW_EXPERT, provider_override=provider, host_override=host, model_override=model, gemini_api_key_override=api_key)

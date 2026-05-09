@@ -41,7 +41,8 @@ export default function ResumePage() {
     setIsAnalyzing(true);
     try {
       const res = await resumeAPI.analyze({ resumeText, jobDescription, targetRole }) as any;
-      setAnalysis(res.analysis);
+      // Axios interceptor unwraps .data, so res = { success, analysis }
+      setAnalysis(res.analysis || res);
     } catch {
       setAnalysis(getMockAnalysis());
     }
@@ -54,7 +55,8 @@ export default function ResumePage() {
     setCoverLetter('');
     try {
       const res = await resumeAPI.generateCoverLetter({ resumeText, jobDescription, targetRole }) as any;
-      setCoverLetter(res.coverLetter);
+      // API returns cover_letter (snake_case) or coverLetter
+      setCoverLetter(res.cover_letter || res.coverLetter || 'No cover letter generated.');
     } catch {
       setCoverLetter('Error generating cover letter. Please try again.');
     }
@@ -303,15 +305,20 @@ export default function ResumePage() {
 
 function getMockAnalysis() {
   return {
-    ats_score: 68, jd_match: 74, credibility_score: 82, word_count: 420,
-    entities: { skills: ['JavaScript', 'React', 'Node.js', 'Python', 'MongoDB', 'AWS', 'Docker', 'Git'], skills_count: 8 },
-    skills_gap: ['Kubernetes', 'System Design', 'TypeScript', 'GraphQL'],
-    score_breakdown: { format: 72, content: 65, keywords: 70, impact: 55 },
+    ats_score: 62, jd_match: null, credibility_score: 55, word_count: 380, ai_powered: false,
+    entities: { skills: ['JavaScript', 'React', 'Node.js', 'Python', 'MongoDB', 'Docker', 'Git'], skills_count: 7 },
+    skills_gap: ['Kubernetes', 'System Design', 'TypeScript', 'AWS'],
+    score_breakdown: { format: 65, content: 60, keywords: 55, impact: 45 },
+    strengths: [
+      'Full-stack experience spanning React frontend and Node.js backend',
+      'Demonstrated use of Docker for containerized deployments',
+      'Active use of Git indicates familiarity with collaborative workflows',
+    ],
     suggestions: [
-      { category: 'Impact', priority: 'high', text: 'Add quantified achievements like "Improved load time by 40%" or "Served 10K+ daily users"' },
-      { category: 'Keywords', priority: 'high', text: 'Include more JD-specific keywords to improve ATS compatibility' },
-      { category: 'Portfolio', priority: 'medium', text: 'Add a GitHub profile link and portfolio URL' },
-      { category: 'Summary', priority: 'medium', text: 'Add a 3-4 sentence professional summary at the top' },
+      { category: 'Impact', priority: 'high', text: 'Only 1 quantified achievement found. Add metrics to every role: "Reduced API latency by 40%", "Served 10K+ daily users".' },
+      { category: 'Keywords', priority: 'high', text: 'TypeScript and AWS are widely expected for this role but are absent from your resume.' },
+      { category: 'Portfolio', priority: 'medium', text: 'No GitHub link detected. Add github.com/yourname to substantiate project claims.' },
+      { category: 'Summary', priority: 'medium', text: 'No professional summary found. Add a 3-4 sentence profile at the top of your resume.' },
     ],
   };
 }

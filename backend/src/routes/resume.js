@@ -62,7 +62,7 @@ router.post('/analyze', protect, async (req, res) => {
           geminiModel: req.user.aiSettings?.geminiModel || 'gemini-1.5-flash',
           geminiApiKey: req.user.aiSettings?.geminiApiKey || '',
         },
-      }, { timeout: 20000 });
+      }, { timeout: 60000 });  // increased for AI-powered analysis
       analysis = mlResponse.data;
     } catch (mlError) {
       analysis = generateFallbackResumeAnalysis(resumeText, jobDescription);
@@ -125,55 +125,74 @@ router.post('/questions', protect, async (req, res) => {
 
 function generateFallbackResumeAnalysis(resumeText, jobDescription) {
   const wordCount = resumeText.split(/\s+/).length;
-  const hasQuantifiedAchievements = /\d+%|\d+x|\$\d+|\d+ users?|\d+ clients?/i.test(resumeText);
-  const hasActionVerbs = /developed|built|designed|implemented|led|managed|increased|reduced/i.test(resumeText);
-  const hasTechStack = /javascript|python|react|node|aws|docker|kubernetes|sql|mongodb/i.test(resumeText.toLowerCase());
-  const hasLinks = /github|linkedin|portfolio/i.test(resumeText.toLowerCase());
+  const hasQuantified = /\d+\s*%|\d+x\b|\$[\d,]+|\d+\s+(?:users?|customers?)/i.test(resumeText);
+  const hasActionVerbs = /developed|built|designed|implemented|led|managed|optimized|reduced|increased|architected/i.test(resumeText);
+  const hasTechStack = /javascript|python|react|node|aws|docker|kubernetes|sql|mongodb|typescript/i.test(resumeText.toLowerCase());
+  const hasGithub = /github\.com/i.test(resumeText);
+  const hasLinkedin = /linkedin\.com|linkedin\.in/i.test(resumeText);
+  const hasDates = /\b(20\d{2}|19\d{2})\b/.test(resumeText);
+  const goodLength = wordCount >= 200 && wordCount <= 1000;
 
-  const atsScore = Math.min(100, 
-    (hasQuantifiedAchievements ? 20 : 0) +
+  // Deterministic scoring - no Math.random()
+  const atsScore = Math.min(100,
+    (hasQuantified ? 20 : 0) +
     (hasActionVerbs ? 20 : 0) +
-    (hasTechStack ? 25 : 0) +
-    (hasLinks ? 10 : 0) +
-    (wordCount > 300 && wordCount < 700 ? 15 : wordCount > 200 ? 10 : 5) +
-    Math.floor(Math.random() * 10)
+    (hasTechStack ? 20 : 0) +
+    (hasGithub ? 10 : 0) +
+    (hasLinkedin ? 10 : 0) +
+    (goodLength ? 10 : wordCount > 100 ? 5 : 0) +
+    (hasDates ? 10 : 0)
   );
 
-  const jdMatchScore = jobDescription
-    ? Math.floor(50 + Math.random() * 35)
-    : null;
+  const credibilityScore = Math.min(100,
+    (hasQuantified ? 30 : 0) +
+    (hasDates ? 25 : 0) +
+    (hasGithub ? 20 : 0) +
+    (hasLinkedin ? 15 : 0) +
+    (goodLength ? 10 : 0)
+  );
+
+  // JD match: keyword overlap (no random)
+  let jdMatchScore = null;
+  if (jobDescription && jobDescription.trim()) {
+    const jdWords = new Set(jobDescription.toLowerCase().match(/\b[a-z]{3,}\b/g) || []);
+    const resumeWords = new Set(resumeText.toLowerCase().match(/\b[a-z]{3,}\b/g) || []);
+    const overlap = [...jdWords].filter(w => resumeWords.has(w)).length;
+    jdMatchScore = Math.min(100, Math.round((overlap / Math.max(jdWords.size, 1)) * 100));
+  }
 
   return {
     ats_score: atsScore,
     jd_match: jdMatchScore,
-    credibility_score: Math.floor(75 + Math.random() * 20),
+    credibility_score: credibilityScore,
     word_count: wordCount,
+    ai_powered: false,
     entities: {
-      skills: ['JavaScript', 'Python', 'React', 'Node.js'].filter(() => Math.random() > 0.5),
-      skills_count: 4,
-      companies: [],
-      education: [],
+      skills: ['JavaScript', 'Python', 'React', 'Node.js', 'Docker'].filter(s =>
+        resumeText.toLowerCase().includes(s.toLowerCase())
+      ),
+      skills_count: ['JavaScript', 'Python', 'React', 'Node.js', 'Docker'].filter(s =>
+        resumeText.toLowerCase().includes(s.toLowerCase())
+      ).length,
     },
-    skills_gap: jobDescription
-      ? ['Cloud Architecture', 'System Design', 'Leadership Experience']
-      : [],
+    skills_gap: jobDescription ? ['System Design', 'Cloud Architecture', 'Kubernetes'] : [],
     suggestions: [
-      { category: 'Impact', priority: 'high', text: 'Add quantified achievements (e.g., "Improved performance by 40%")' },
-      { category: 'Keywords', priority: 'high', text: 'Include more industry-specific keywords from the job description' },
-      { category: 'Format', priority: 'medium', text: 'Use bullet points with strong action verbs for better ATS compatibility' },
-      { category: 'Projects', priority: 'medium', text: 'Add links to your GitHub projects and live demos' },
-      { category: 'Summary', priority: 'medium', text: 'Include a professional summary tailored to your target role' },
-    ],
+      !hasQuantified && { category: 'Impact', priority: 'high', text: 'No quantified achievements found. Add metrics: "Reduced latency by 35%", "Served 50K daily users".' },
+      !hasActionVerbs && { category: 'Impact', priority: 'high', text: 'Weak action verbs. Lead bullets with: Architected, Deployed, Optimized, Reduced.' },
+      !hasGithub && { category: 'Portfolio', priority: 'medium', text: 'No GitHub link detected. Add github.com/yourname.' },
+      !hasLinkedin && { category: 'Profile', priority: 'medium', text: 'No LinkedIn URL found. Add linkedin.com/in/yourname.' },
+      { category: 'Summary', priority: 'medium', text: 'Add a 3-4 sentence professional summary at the top of your resume.' },
+    ].filter(Boolean),
     strengths: [
-      hasActionVerbs ? 'Good use of action verbs' : 'Structured presentation',
-      hasTechStack ? 'Clear technical skills section' : 'Professional formatting',
-      wordCount > 200 ? 'Adequate detail provided' : 'Concise and readable',
+      hasActionVerbs ? 'Good use of action-oriented language in bullet points' : 'Structured resume layout',
+      hasTechStack ? 'Clear technical skills section covering key technologies' : 'Professional format maintained',
+      goodLength ? `Well-calibrated resume length (${wordCount} words)` : 'Content provided for analysis',
     ],
     score_breakdown: {
-      format: Math.floor(60 + Math.random() * 35),
-      content: Math.floor(55 + Math.random() * 40),
-      keywords: Math.floor(50 + Math.random() * 45),
-      impact: hasQuantifiedAchievements ? Math.floor(70 + Math.random() * 25) : Math.floor(30 + Math.random() * 30),
+      format: Math.min(100, atsScore + 5),
+      content: Math.min(100, 40 + (hasTechStack ? 20 : 0) + (hasActionVerbs ? 20 : 0) + (hasQuantified ? 20 : 0)),
+      keywords: Math.min(100, (hasTechStack ? 40 : 10) + (jdMatchScore ? Math.floor(jdMatchScore / 2) : 20)),
+      impact: Math.min(100, hasQuantified ? 70 : 30),
     },
   };
 }
