@@ -3,7 +3,8 @@ const router = express.Router();
 const axios = require('axios');
 const { protect } = require('../middleware/auth');
 
-const ML_URL = process.env.ML_SERVICE_URL || 'http://localhost:8000';
+const ML_URL = (process.env.ML_SERVICE_URL || 'http://localhost:8000').replace(/\/$/, '');
+const getMLUrl = (path) => `${ML_URL}/${path.replace(/^\//, '')}`;
 
 // POST /api/project/critique
 router.post('/critique', protect, async (req, res) => {
@@ -15,7 +16,7 @@ router.post('/critique', protect, async (req, res) => {
     }
 
     console.log('Requesting Project Critique via:', ML_URL);
-    const mlResponse = await axios.post(`${ML_URL}/critique-project`, {
+    const mlResponse = await axios.post(getMLUrl('critique-project'), {
       project_description: projectDescription,
       tech_stack: techStack || [],
       target_role: targetRole || req.user.profile?.targetRole || 'Software Engineer',

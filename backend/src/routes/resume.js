@@ -26,7 +26,7 @@ router.post('/upload', protect, upload.single('file'), async (req, res) => {
       contentType: req.file.mimetype,
     });
 
-    const mlResponse = await axios.post(`${ML_URL}/upload-resume`, formData, {
+    const mlResponse = await axios.post(getMLUrl('upload-resume'), formData, {
       headers: formData.getHeaders(),
       timeout: 45000,
     });
@@ -62,7 +62,7 @@ router.post('/analyze', protect, async (req, res) => {
 
     let analysis;
     try {
-      const mlResponse = await axios.post(`${ML_URL}/analyze-resume`, {
+      const mlResponse = await axios.post(getMLUrl('analyze-resume'), {
         resume_text: resumeText,
         job_description: jobDescription || '',
         target_role: targetRole || 'Software Engineer',
@@ -88,7 +88,7 @@ router.post('/analyze', protect, async (req, res) => {
 // POST /api/resume/cover-letter
 router.post('/cover-letter', protect, async (req, res) => {
   try {
-    const mlResponse = await axios.post(`${ML_URL}/generate-cover-letter`, {
+    const mlResponse = await axios.post(getMLUrl('generate-cover-letter'), {
       ...req.body,
       ai_settings: {
         provider: req.user.aiSettings?.provider || 'ollama',

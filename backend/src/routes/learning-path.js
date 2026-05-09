@@ -3,7 +3,8 @@ const router = express.Router();
 const axios = require('axios');
 const { protect } = require('../middleware/auth');
 
-const ML_URL = process.env.ML_SERVICE_URL || 'http://localhost:8000';
+const ML_URL = (process.env.ML_SERVICE_URL || 'http://localhost:8000').replace(/\/$/, '');
+const getMLUrl = (path) => `${ML_URL}/${path.replace(/^\//, '')}`;
 
 // POST /api/learning-path/generate
 router.post('/generate', protect, async (req, res) => {
@@ -11,7 +12,7 @@ router.post('/generate', protect, async (req, res) => {
     const { targetRole, currentSkills, experienceLevel, availableHours } = req.body;
 
     console.log('Generating Learning Path via:', ML_URL);
-    const mlResponse = await axios.post(`${ML_URL}/generate-learning-path`, {
+    const mlResponse = await axios.post(getMLUrl('generate-learning-path'), {
       ...req.body,
       ai_settings: {
         provider: req.user.aiSettings?.provider || 'ollama',

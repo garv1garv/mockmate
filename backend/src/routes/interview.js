@@ -6,7 +6,8 @@ const { protect } = require('../middleware/auth');
 const InterviewSession = require('../models/InterviewSession');
 const User = require('../models/User');
 
-const ML_URL = process.env.ML_SERVICE_URL || 'http://localhost:8000';
+const ML_URL = (process.env.ML_SERVICE_URL || 'http://localhost:8000').replace(/\/$/, '');
+const getMLUrl = (path) => `${ML_URL}/${path.replace(/^\//, '')}`;
 
 // POST /api/interview/start
 router.post('/start', protect, async (req, res) => {
@@ -49,7 +50,7 @@ router.post('/question', protect, async (req, res) => {
       const useAI = session?.mode === 'ai';
 
       if (useAI) {
-        const mlResponse = await axios.post(`${ML_URL}/generate-question`, {
+        const mlResponse = await axios.post(getMLUrl('generate-question'), {
           type: type || 'technical',
           difficulty: difficulty || 'medium',
           category: category || 'general',
@@ -93,7 +94,7 @@ router.post('/evaluate', protect, async (req, res) => {
 
     let evaluation;
     try {
-      const mlResponse = await axios.post(`${ML_URL}/evaluate-answer`, {
+      const mlResponse = await axios.post(getMLUrl('evaluate-answer'), {
         question: questionText,
         user_answer: userAnswer,
         expected_answer: expectedAnswer || '',
