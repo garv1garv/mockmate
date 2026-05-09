@@ -33,7 +33,7 @@ export default function ProjectCritiquePage() {
   };
 
   return (
-    <div className="layout">
+    <div className="app-layout">
       <Sidebar />
       <main className="main-content" style={{ padding: '40px', maxWidth: 1000, margin: '0 auto' }}>
         <div style={{ marginBottom: 40 }}>
@@ -102,8 +102,8 @@ export default function ProjectCritiquePage() {
               <div className="animate-fade-in">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
                   <h2 style={{ fontSize: 20, fontWeight: 800 }}>Architectural Audit</h2>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 12px', borderRadius: 20, background: 'rgba(139, 92, 246, 0.1)', color: 'var(--primary)', fontSize: 14, fontWeight: 700 }}>
-                    <Cpu size={14} /> Score: {critique.architecture_score}/100
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 12px', borderRadius: 20, background: 'rgba(139, 92, 246, 0.1)', color: 'var(--accent-tertiary)', fontSize: 14, fontWeight: 700 }}>
+                    <Cpu size={14} /> Score: {critique.architecture_score || 0}/100
                   </div>
                 </div>
 
@@ -114,7 +114,7 @@ export default function ProjectCritiquePage() {
                 <div style={{ marginBottom: 24 }}>
                   <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--success)', marginBottom: 12, textTransform: 'uppercase', letterSpacing: 0.5 }}>Engineering Strengths</p>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                    {critique.strengths.map((s: string, i: number) => (
+                    {critique.strengths?.map((s: string, i: number) => (
                       <div key={i} style={{ padding: '6px 12px', borderRadius: 8, background: 'rgba(34, 197, 94, 0.05)', border: '1px solid rgba(34, 197, 94, 0.2)', color: 'var(--success)', fontSize: 12 }}>
                         <ShieldCheck size={12} style={{ display: 'inline', marginRight: 6, verticalAlign: 'middle' }} />
                         {s}
@@ -126,7 +126,7 @@ export default function ProjectCritiquePage() {
                 <div style={{ marginBottom: 32 }}>
                   <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--danger)', marginBottom: 12, textTransform: 'uppercase', letterSpacing: 0.5 }}>Critical Vulnerabilities</p>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                    {critique.vulnerabilities.map((v: any, i: number) => (
+                    {critique.vulnerabilities?.map((v: any, i: number) => (
                       <div key={i} style={{ padding: 16, borderRadius: 12, background: 'rgba(239, 68, 68, 0.03)', border: '1px solid rgba(239, 68, 68, 0.1)' }}>
                         <div style={{ display: 'flex', gap: 10 }}>
                           <AlertTriangle size={16} color="var(--danger)" style={{ flexShrink: 0, marginTop: 2 }} />
@@ -140,23 +140,25 @@ export default function ProjectCritiquePage() {
                   </div>
                 </div>
 
-                <div style={{ padding: 20, borderRadius: 16, background: 'var(--gradient-primary)', color: 'white', marginBottom: 32 }}>
-                  <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 12 }}>
-                    <Lightbulb size={20} />
-                    <span style={{ fontWeight: 800 }}>Staff-Level Alternative: {critique.staff_alternative.component}</span>
+                {critique.staff_alternative && (
+                  <div style={{ padding: 20, borderRadius: 16, background: 'var(--gradient-primary)', color: 'white', marginBottom: 32 }}>
+                    <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 12 }}>
+                      <Lightbulb size={20} />
+                      <span style={{ fontWeight: 800 }}>Staff-Level Alternative: {critique.staff_alternative.component}</span>
+                    </div>
+                    <p style={{ fontSize: 14, opacity: 0.9, lineHeight: 1.6, marginBottom: 12 }}>
+                      {critique.staff_alternative.suggestion}
+                    </p>
+                    <div style={{ fontSize: 12, fontWeight: 700, opacity: 0.8 }}>
+                      BENEFIT: {critique.staff_alternative.benefit}
+                    </div>
                   </div>
-                  <p style={{ fontSize: 14, opacity: 0.9, lineHeight: 1.6, marginBottom: 12 }}>
-                    {critique.staff_alternative.suggestion}
-                  </p>
-                  <div style={{ fontSize: 12, fontWeight: 700, opacity: 0.8 }}>
-                    BENEFIT: {critique.staff_alternative.benefit}
-                  </div>
-                </div>
+                )}
 
                 <div>
-                  <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--primary)', marginBottom: 16, textTransform: 'uppercase', letterSpacing: 0.5 }}>Interviewer "Grilling" Questions</p>
+                  <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--accent-primary)', marginBottom: 16, textTransform: 'uppercase', letterSpacing: 0.5 }}>Interviewer "Grilling" Questions</p>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                    {critique.killer_questions.map((q: any, i: number) => (
+                    {critique.killer_questions?.map((q: any, i: number) => (
                       <div key={i} style={{ padding: 16, borderRadius: 12, background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)' }}>
                         <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 8 }}>"{q.question}"</div>
                         <div style={{ fontSize: 12, color: 'var(--text-muted)', fontStyle: 'italic' }}>Interviewer Context: {q.context}</div>
