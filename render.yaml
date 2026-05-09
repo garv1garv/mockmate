@@ -23,7 +23,7 @@ services:
       - key: MONGODB_URI
         sync: false
       - key: ML_SERVICE_URL
-        value: http://mockmate-ml:8000
+        value: http://mockmate-ml
       - key: JWT_SECRET
         generateValue: true
       - key: NODE_ENV
