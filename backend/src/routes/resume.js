@@ -12,12 +12,37 @@ const upload = multer({ limits: { fileSize: 10 * 1024 * 1024 } }); // 10MB limit
 const ML_URL = (process.env.ML_SERVICE_URL || 'http://localhost:8000').trim().replace(/\/$/, '');
 const getMLUrl = (path) => `${ML_URL}/${path.replace(/^\//, '')}`;
 
+/**
+ * Ensures the ML service is awake before making a request.
+ * Useful for Render free tier cold starts.
+ */
+const ensureMLAwake = async () => {
+  try {
+    await axios.get(`${ML_URL}/health`, { timeout: 8000 });
+    return true;
+  } catch (err) {
+    console.log('ML Service is waking up, waiting...');
+    // If it fails, wait 3 seconds and try one more time
+    await new Promise(r => setTimeout(r, 3000));
+    try {
+      await axios.get(`${ML_URL}/health`, { timeout: 15000 });
+      return true;
+    } catch (finalErr) {
+      console.error('ML Service failed to wake up');
+      return false;
+    }
+  }
+};
+
 // POST /api/resume/upload
 router.post('/upload', protect, upload.single('file'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ success: false, message: 'No file uploaded' });
     }
+
+    // Pre-flight check to wake up Render service
+    await ensureMLAwake();
 
     const formData = new FormData();
     formData.append('file', req.file.buffer, {

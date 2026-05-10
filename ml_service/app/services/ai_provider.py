@@ -60,6 +60,10 @@ def _active_provider(incoming_key: Optional[str] = None) -> str:
         return "none"
     if AI_PROVIDER == "gemini":
         if not GEMINI_API_KEY and not incoming_key:
+            # Last ditch attempt: check for GEMINI_API_KEY one more time directly from env
+            key = os.getenv("GEMINI_API_KEY")
+            if key:
+                return "gemini"
             logger.warning("AI_PROVIDER=gemini but no GEMINI_API_KEY set — falling back to none")
             return "none"
         return "gemini"
