@@ -49,14 +49,21 @@ const limiter = rateLimit({
 });
 app.use('/api', limiter);
 
-// Routes
+// Routes (Standard /api prefix)
 app.use('/api/auth', authRouter);
-app.use('/auth', authRouter); // Compatibility fallback for frontend
 app.use('/api/interview', interviewRouter);
 app.use('/api/resume', resumeRouter);
 app.use('/api/analytics', analyticsRouter);
 app.use('/api/learning-path', learningPathRouter);
 app.use('/api/project', projectRouter);
+
+// Fallback Routes (Direct root access for production compatibility)
+app.use('/auth', authRouter);
+app.use('/interview', interviewRouter);
+app.use('/resume', resumeRouter);
+app.use('/analytics', analyticsRouter);
+app.use('/learning-path', learningPathRouter);
+app.use('/project', projectRouter);
 
 // Health check
 app.get('/health', (req, res) => {
