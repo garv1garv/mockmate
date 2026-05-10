@@ -125,22 +125,26 @@ async def evaluate_answer(request: EvaluateAnswerRequest):
     matched_kws, missed_kws = check_keywords(request.user_answer, keywords)
     kw_cov = (len(matched_kws) / len(keywords) * 100) if keywords else semantic_score
 
-    # ── Derived scores ───────────────────────────────────────────────────────
-    factual_score      = min(100, round(kw_cov * 0.7 + semantic_score * 0.3))
+    # ── Derived scores (Precision Refinement) ───────────────────────────────
+    # Precision weighting: technical keywords count more for factual accuracy
+    technical_signal_multiplier = 1.2 if len(matched_kws) >= 3 else 1.0
+    factual_score      = min(100, round((kw_cov * 0.75 + semantic_score * 0.25) * technical_signal_multiplier))
+    
     user_len           = len(request.user_answer.split())
     exp_len            = len(request.expected_answer.split())
     
-    # Penalize extremely short answers more aggressively
+    # Penalize lack of depth (short answers) more heavily for precision
     length_penalty = 1.0
-    if user_len < 10: length_penalty = 0.5
-    elif user_len < exp_len * 0.3: length_penalty = 0.7
+    if user_len < 12: length_penalty = 0.45
+    elif user_len < exp_len * 0.25: length_penalty = 0.65
     
-    completeness_score = min(100, round((kw_cov * 0.6 + semantic_score * 0.4) * length_penalty))
+    completeness_score = min(100, round((kw_cov * 0.55 + semantic_score * 0.45) * length_penalty))
     clarity_score      = min(100, round(analyze_clarity(request.user_answer)))
     
+    # Precision-weighted overall score
     overall_score      = round(
-        semantic_score * 0.35 +
-        factual_score  * 0.35 +
+        semantic_score * 0.40 +
+        factual_score  * 0.30 +
         completeness_score * 0.20 +
         clarity_score  * 0.10
     )

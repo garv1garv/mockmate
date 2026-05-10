@@ -126,6 +126,21 @@ QUESTION_BANK = {
         },
     },
     "coding": {
+        "logic": {
+            "easy": [
+                {"text": "Explain the difference between a list and a tuple in Python.", "keywords": ["mutable", "immutable", "performance"], "expected": "Lists are mutable and use square brackets; tuples are immutable and use parentheses."},
+                {"text": "What is the time complexity of searching in a Hash Map?", "keywords": ["average case", "constant time", "O(1)", "hashing"], "expected": "O(1) on average, as keys are mapped directly to indices via a hash function."}
+            ],
+            "medium": [
+                {"text": "How does a Binary Search Tree (BST) remain efficient?", "keywords": ["sorted", "logarithmic", "O(log n)", "recursion"], "expected": "BSTs keep elements sorted, allowing O(log n) search by eliminating half the search space at each step."}
+            ]
+        },
+        "system-design": {
+            "hard": [
+                {"text": "How would you design a rate limiter for a high-traffic API?", "keywords": ["token bucket", "redis", "distributed", "sliding window"], "expected": "Use algorithms like Token Bucket or Sliding Window with a distributed cache like Redis to track user request counts across multiple servers."},
+                {"text": "Explain the CAP theorem and how it affects system design choices.", "keywords": ["consistency", "availability", "partition tolerance", "trade-off"], "expected": "CAP theorem states a distributed system can only provide two of three: Consistency, Availability, and Partition Tolerance."}
+            ]
+        },
         "arrays": {
             "easy": [
                 {"text": "Given an array of integers, find the two numbers that add up to a target sum.", "keywords": ["hashmap", "O(n)", "complement", "two sum"], "expected": "Use a hashmap: for each element check if target-element exists. O(n) time, O(n) space.", "code_template": "def two_sum(nums, target):\n    # Your solution here\n    pass"},
