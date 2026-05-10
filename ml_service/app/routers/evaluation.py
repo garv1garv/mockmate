@@ -80,23 +80,26 @@ def generate_feedback(scores: dict, question: str, answer_type: str) -> str:
     overall = scores['overall']
     if overall >= 85:
         return (
-            f"Excellent answer! You demonstrated strong understanding with a clear, "
-            f"well-structured response. Semantic coverage: {scores['semantic']}%, "
-            f"factual accuracy: {scores['factual']}%. Keep up the outstanding work!"
+            f"Excellent! Your answer is technically precise and covers the nuances required for this topic. "
+            f"You correctly identified {scores['semantic']}% of the core concepts. "
+            f"Pro-Tip: You've mastered this; try to focus on how this integrates with broader system contexts."
         )
     elif overall >= 70:
         return (
-            f"Good answer! You covered the main concepts well (semantic: {scores['semantic']}%). "
-            f"To improve further, address all edge cases and provide specific examples."
+            f"Solid answer, but slightly incomplete. You missed a few key details "
+            f"regarding factual accuracy ({scores['factual']}%). To reach the next level, "
+            f"be more specific about the trade-offs or edge cases mentioned in the ideal answer."
         )
     elif overall >= 50:
         return (
-            f"Decent attempt with some key concepts covered. Completeness: {scores['completeness']}%. "
-            f"Review the expected concepts and practice explaining them more clearly."
+            f"Good start, but you're missing about half of the technical depth required. "
+            f"Your clarity is decent ({scores['clarity']}%), but the factual content needs work. "
+            f"Focus on using more precise industry terminology to sound more authoritative."
         )
     return (
-        "This answer needs more work. Focus on understanding the core concepts first, "
-        "then practice articulating them clearly. Consider reviewing study materials."
+        "This answer is too brief or misses the core concept. To improve, try to explain "
+        "the 'How' and 'Why' behind your logic, not just the 'What'. Review the keywords provided "
+        "and try again."
     )
 
 

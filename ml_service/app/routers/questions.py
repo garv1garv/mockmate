@@ -106,15 +106,15 @@ QUESTION_BANK = {
                 {"text": "What is CI/CD and why is it important?", "keywords": ["continuous integration", "deployment", "automation", "pipeline"], "expected": "CI automates code integration; CD automates delivery/deployment. It ensures fast, reliable, and consistent releases."},
             ],
             "hard": [
-                {"text": "Explain Kubernetes Architecture and its core components.", "keywords": ["kube-apiserver", "etcd", "scheduler", "kubelet", "control plane"], "expected": "Control plane (API server, etcd, scheduler, manager) manages the cluster; Nodes run Pods."},
+                {"text": "Explain Kubernetes Architecture and its core components.", "keywords": ["kube-apiserver", "etcd", "scheduler", "kubelet", "control plane"], "expected": "Control plane (API server, etcd, scheduler, manager) manages the cluster; Nodes run Pods.", "hint": "Focus on the relationship between the control plane and the worker nodes."},
             ]
         }
     },
     "behavioral": {
         "general": {
             "easy": [
-                {"text": "Tell me about yourself and why you're interested in this role.", "keywords": ["experience", "skills", "passion", "goals", "background"], "expected": "Cover professional background, key skills, relevant achievements, and specific reasons for interest in this role."},
-                {"text": "What is your greatest professional strength?", "keywords": ["specific", "example", "impact", "quantified", "relevant"], "expected": "Choose a relevant strength, provide a specific example, quantify the impact, and connect to the position."},
+                {"text": "Tell me about yourself and why you're interested in this role.", "keywords": ["experience", "skills", "passion", "goals", "background"], "expected": "Cover professional background, key skills, relevant achievements, and specific reasons for interest in this role.", "hint": "Link your past achievements directly to the needs mentioned in the job description."},
+                {"text": "What is your greatest professional strength?", "keywords": ["specific", "example", "impact", "quantified", "relevant"], "expected": "Choose a relevant strength, provide a specific example, quantify the impact, and connect to the position.", "hint": "Provide a concrete metric (e.g., 'reduced latency by 20%') to support your claim."},
             ],
             "medium": [
                 {"text": "Tell me about a time you faced a significant technical challenge. How did you resolve it?", "keywords": ["STAR", "problem", "solution", "impact", "learning"], "expected": "Use STAR: the technical challenge, action taken, result achieved, and lesson learned."},
