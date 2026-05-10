@@ -51,6 +51,7 @@ app.use('/api', limiter);
 
 // Routes
 app.use('/api/auth', authRouter);
+app.use('/auth', authRouter); // Compatibility fallback for frontend
 app.use('/api/interview', interviewRouter);
 app.use('/api/resume', resumeRouter);
 app.use('/api/analytics', analyticsRouter);
