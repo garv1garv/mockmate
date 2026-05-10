@@ -70,7 +70,7 @@ app.get('/health', (req, res) => {
 // Diagnostic route for ML connectivity
 app.get('/api/diag/ml', async (req, res) => {
   const axios = require('axios');
-  const mlUrl = (process.env.ML_SERVICE_URL || 'http://localhost:8000').replace(/\/$/, '');
+  const mlUrl = (process.env.ML_SERVICE_URL || 'http://localhost:8000').trim().replace(/\/$/, '');
   try {
     const start = Date.now();
     const resp = await axios.get(`${mlUrl}/health`, { timeout: 5000 });

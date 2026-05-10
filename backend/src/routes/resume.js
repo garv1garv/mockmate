@@ -9,8 +9,7 @@ const FormData = require('form-data');
 
 const upload = multer({ limits: { fileSize: 10 * 1024 * 1024 } }); // 10MB limit
 
-const ML_URL = (process.env.ML_SERVICE_URL || 'http://localhost:8000').replace(/\/$/, '');
-
+const ML_URL = (process.env.ML_SERVICE_URL || 'http://localhost:8000').trim().replace(/\/$/, '');
 const getMLUrl = (path) => `${ML_URL}/${path.replace(/^\//, '')}`;
 
 // POST /api/resume/upload
@@ -28,7 +27,7 @@ router.post('/upload', protect, upload.single('file'), async (req, res) => {
 
     const mlResponse = await axios.post(getMLUrl('upload-resume'), formData, {
       headers: formData.getHeaders(),
-      timeout: 45000,
+      timeout: 90000, // Increased to 90s for cold starts
     });
 
     // Save parsed text to user profile for future use (e.g., Resume-based Interview)
@@ -60,7 +59,6 @@ router.post('/analyze', protect, async (req, res) => {
       return res.status(400).json({ success: false, message: 'Resume text is required' });
     }
 
-    let analysis;
     try {
       const mlResponse = await axios.post(getMLUrl('analyze-resume'), {
         resume_text: resumeText,
